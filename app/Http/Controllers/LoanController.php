@@ -8,20 +8,6 @@ use App\Http\Requests\StoreLoanRequest;
 use App\Http\Requests\UpdateLoanRequest;
 use App\Http\Service\LoanService;
 
-/**
- * @OA\Schema(
- *     schema="Loan",
- *     type="object",
- *     title="Loan",
- *     required={"id", "user_id", "book_id", "status"},
- *     @OA\Property(property="id", type="integer", example=5),
- *     @OA\Property(property="user_id", type="integer", example=3),
- *     @OA\Property(property="book_id", type="integer", example=11),
- *     @OA\Property(property="loan_date", type="string", format="date", nullable=true, example="2025-06-01"),
- *     @OA\Property(property="return_date", type="string", format="date", nullable=true, example="2025-06-15"),
- *     @OA\Property(property="status", type="string", example="aprobado"),
- * )
- */
 class LoanController extends Controller
 {
     protected $service;
@@ -91,7 +77,6 @@ class LoanController extends Controller
         }
     }
 
-
     /**
      * @OA\Get(
      *     path="/api/loans/{loan}",
@@ -147,7 +132,7 @@ class LoanController extends Controller
      *     @OA\Response(response=422, description="Error de validación")
      * )
      */
-     public function update(UpdateLoanRequest $request, Loan $loan)
+    public function update(UpdateLoanRequest $request, Loan $loan)
     {
         if (!Auth::check() || Auth::user()->role !== 'admin') {
             return response()->json(['message' => 'Unauthorized'], 403);
@@ -208,7 +193,9 @@ class LoanController extends Controller
      *         response=200,
      *         description="Préstamo marcado como devuelto",
      *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="Préstamo marcado como devuelto.")
+     *             @OA\Property(property="message", type="string", example="Préstamo marcado como devuelto."),
+     *             @OA\Property(property="fine_generated", type="boolean", example=true),
+     *             @OA\Property(property="fine_amount", type="number", format="float", example=10.00)
      *         )
      *     ),
      *     @OA\Response(response=403, description="No autorizado"),
@@ -228,11 +215,70 @@ class LoanController extends Controller
         }
 
         try {
-            $this->service->markAsReturned($loan);
+            $loan = $this->service->markAsReturned($loan);
+            
+            // Verificar si se generó una multa
+            $fine = $loan->fine;
+            
+            return response()->json([
+                'message' => 'Préstamo marcado como devuelto.',
+                'fine_generated' => $fine !== null,
+                'fine_amount' => $fine ? $fine->amount : 0
+            ]);
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], 404);
         }
+    }
 
-        return response()->json(['message' => 'Préstamo marcado como devuelto.']);
+    /**
+     * @OA\Get(
+     *     path="/api/loans/overdue",
+     *     summary="Get overdue loans (admin only)",
+     *     tags={"Loans"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="List of overdue loans",
+     *         @OA\JsonContent(
+     *             type="array",
+     *             @OA\Items(ref="#/components/schemas/Loan")
+     *         )
+     *     ),
+     *     @OA\Response(response=403, description="Unauthorized")
+     * )
+     */
+    public function overdue()
+    {
+        if (Auth::user()->role !== 'admin') {
+            return response()->json(['message' => 'No autorizado'], 403);
+        }
+
+        return response()->json($this->service->getOverdueLoans());
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/loans/near-due",
+     *     summary="Get loans near due date (admin only)",
+     *     tags={"Loans"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="List of loans near due date (within 3 days)",
+     *         @OA\JsonContent(
+     *             type="array",
+     *             @OA\Items(ref="#/components/schemas/Loan")
+     *         )
+     *     ),
+     *     @OA\Response(response=403, description="Unauthorized")
+     * )
+     */
+    public function nearDue()
+    {
+        if (Auth::user()->role !== 'admin') {
+            return response()->json(['message' => 'No autorizado'], 403);
+        }
+
+        return response()->json($this->service->getLoansNearDue());
     }
 }
