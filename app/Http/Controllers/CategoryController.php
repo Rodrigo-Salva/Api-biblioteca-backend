@@ -9,17 +9,6 @@ use App\Http\Requests\StoreCategoryRequest;
 use App\Http\Requests\UpdateCategoryRequest;
 use App\Http\Service\CategoryService;
 
-/**
- * @OA\Schema(
- *     schema="Category",
- *     type="object",
- *     title="Category",
- *     required={"id", "name"},
- *     @OA\Property(property="id", type="integer", example=1),
- *     @OA\Property(property="name", type="string", example="Ficción"),
- *     @OA\Property(property="description", type="string", nullable=true, example="Libros de ficción y narrativa"),
- * )
- */
 class CategoryController extends Controller
 {
     protected $service;
@@ -28,7 +17,6 @@ class CategoryController extends Controller
     {
         $this->service = $service;
     }
-
 
     /**
      * @OA\Get(
