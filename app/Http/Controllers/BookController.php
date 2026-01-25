@@ -3,31 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Book;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreBookRequest;
 use App\Http\Requests\UpdateBookRequest;
 use App\Http\Service\BookService as ServiceBookService;
 
-/**
- * @OA\Schema(
- *     schema="Book",
- *     type="object",
- *     title="Book",
- *     required={"id", "title", "isbn", "year", "author_id", "category_id"},
- *     @OA\Property(property="id", type="integer", example=1),
- *     @OA\Property(property="title", type="string", example="El señor de los anillos"),
- *     @OA\Property(property="isbn", type="string", example="9788478884453"),
- *     @OA\Property(property="year", type="integer", example=1954),
- *     @OA\Property(property="author_id", type="integer", example=2),
- *     @OA\Property(property="category_id", type="integer", example=3),
- *     @OA\Property(property="cover_image", type="string", nullable=true, example="covers/imagen.jpg"),
- *     @OA\Property(property="cover_image_url", type="string", nullable=true, example="http://tu-dominio/storage/covers/imagen.jpg"),
- *     @OA\Property(property="synopsis", type="string", nullable=true, example="Una historia fantástica..."),
- *     @OA\Property(property="pages", type="integer", nullable=true, example=423),
- *     @OA\Property(property="publisher", type="string", nullable=true, example="Editorial XYZ"),
- *     @OA\Property(property="stock", type="integer", nullable=true, example=10)
- * )
- */
 class BookController extends Controller
 {
     protected $bookService;
@@ -40,19 +21,107 @@ class BookController extends Controller
     /**
      * @OA\Get(
      *     path="/api/books",
-     *     summary="List all books",
+     *     summary="List all books with advanced filters",
      *     tags={"Books"},
+     *     @OA\Parameter(
+     *         name="search",
+     *         in="query",
+     *         description="Search by title, ISBN or author name",
+     *         required=false,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="author_id",
+     *         in="query",
+     *         description="Filter by author ID",
+     *         required=false,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Parameter(
+     *         name="category_id",
+     *         in="query",
+     *         description="Filter by category ID",
+     *         required=false,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Parameter(
+     *         name="year",
+     *         in="query",
+     *         description="Filter by exact year",
+     *         required=false,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Parameter(
+     *         name="year_from",
+     *         in="query",
+     *         description="Filter by year from",
+     *         required=false,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Parameter(
+     *         name="year_to",
+     *         in="query",
+     *         description="Filter by year to",
+     *         required=false,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Parameter(
+     *         name="available",
+     *         in="query",
+     *         description="Filter only available books",
+     *         required=false,
+     *         @OA\Schema(type="string", enum={"true", "false"})
+     *     ),
+     *     @OA\Parameter(
+     *         name="sort",
+     *         in="query",
+     *         description="Sort field",
+     *         required=false,
+     *         @OA\Schema(type="string", enum={"title", "year", "pages", "created_at", "stock"})
+     *     ),
+     *     @OA\Parameter(
+     *         name="order",
+     *         in="query",
+     *         description="Sort order",
+     *         required=false,
+     *         @OA\Schema(type="string", enum={"asc", "desc"}, default="asc")
+     *     ),
+     *     @OA\Parameter(
+     *         name="per_page",
+     *         in="query",
+     *         description="Items per page",
+     *         required=false,
+     *         @OA\Schema(type="integer", default=15)
+     *     ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="Page number",
+     *         required=false,
+     *         @OA\Schema(type="integer", default=1)
+     *     ),
      *     @OA\Response(
      *         response=200,
      *         description="Successful operation",
-     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Book"))
+     *         @OA\JsonContent(
+     *             @OA\Property(property="current_page", type="integer"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="array",
+     *                 @OA\Items(ref="#/components/schemas/Book")
+     *             ),
+     *             @OA\Property(property="total", type="integer"),
+     *             @OA\Property(property="per_page", type="integer"),
+     *             @OA\Property(property="last_page", type="integer")
+     *         )
      *     )
      * )
      */
-    public function index()
+    public function index(Request $request)
     {
-        return $this->bookService->list();
+        return $this->bookService->list($request);
     }
+
 
     /**
      * @OA\Post(
@@ -184,19 +253,19 @@ class BookController extends Controller
         return response()->json(null, 204);
     }
 
-/**
- * @OA\Get(
- *     path="/api/books/available",
- *     summary="List books with stock available",
- *     tags={"Books"},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation",
- *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Book"))
- *     )
- * )
- */
-   public function available()
+    /**
+     * @OA\Get(
+     *     path="/api/books/available",
+     *     summary="List books with stock available",
+     *     tags={"Books"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Book"))
+     *     )
+     * )
+     */
+    public function available()
     {
         return response()->json($this->bookService->available());
     }
