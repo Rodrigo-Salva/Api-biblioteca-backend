@@ -6,9 +6,9 @@ use App\Models\Category;
 
 class CategoryService
 {
-    public function list()
+    public function list($all = false)
     {
-        return Category::all();
+        return $all ? Category::all() : Category::paginate(10);
     }
 
     public function create(array $data)
