@@ -4,13 +4,20 @@ namespace App\Http\Service;
 
 use App\Models\Loan;
 use App\Models\Book;
+use App\Models\Fine;
+use App\Models\Reservation;
+use App\Notifications\LoanApprovedNotification;
+use App\Notifications\FineGeneratedNotification;
+use Carbon\Carbon;
 
 class LoanService
 {
+    protected $reservationService;
     protected $notificationService;
 
-    public function __construct(NotificationService $notificationService)
+    public function __construct(ReservationService $reservationService, NotificationService $notificationService)
     {
+        $this->reservationService = $reservationService;
         $this->notificationService = $notificationService;
     }
 
@@ -23,7 +30,16 @@ class LoanService
 
     public function createLoan($user, array $data)
     {
-        // 1. Verificar límite de préstamos
+        // 1. Verificar si tiene multas pendientes
+        $hasPendingFines = Fine::where('user_id', $user->id)
+            ->where('status', 'pendiente')
+            ->exists();
+
+        if ($hasPendingFines) {
+            throw new \Exception('Tienes multas pendientes. Paga tus multas antes de solicitar un nuevo préstamo.');
+        }
+
+        // 2. Verificar si tiene préstamos activos y límite
         $prestamosActivos = Loan::where('user_id', $user->id)
             ->whereIn('status', ['pendiente', 'aprobado'])
             ->whereNull('return_date')
@@ -33,30 +49,33 @@ class LoanService
             throw new \Exception('Has alcanzado el límite máximo de 3 préstamos activos.');
         }
 
-        // 2. Verificar multas pendientes
-        $multasPendientes = Loan::where('user_id', $user->id)
-            ->where('fine_amount', '>', 0)
-            ->where('is_paid', false)
-            ->exists();
-
-        if ($multasPendientes) {
-            throw new \Exception('No puedes solicitar nuevos préstamos porque tienes multas pendientes de pago.');
-        }
-
         $book = Book::findOrFail($data['book_id']);
         
-        // 3. Buscar unidad disponible
-        $unit = $book->units()->where('status', 'disponible')->first();
-        
-        if (!$unit && $book->stock <= 0) {
-             throw new \Exception('El libro no está disponible (sin stock)');
+        // 3. Verificar stock disponible
+        if ($book->stock <= 0) {
+            throw new \Exception('El libro no está disponible en este momento.');
         }
 
-        $book->disminuirStock();
-        
-        if ($unit) {
-            $unit->update(['status' => 'prestado']);
+        // 4. Buscar unidad disponible si existe el sistema de unidades
+        $unit = null;
+        if (method_exists($book, 'units')) {
+            $unit = $book->units()->where('status', 'disponible')->first();
+            if ($unit) {
+                $unit->update(['status' => 'prestado']);
+            }
         }
+
+        // 5. Si el usuario tiene una reserva disponible de este libro, usarla
+        $reservation = Reservation::where('user_id', $user->id)
+            ->where('book_id', $book->id)
+            ->where('status', 'disponible')
+            ->first();
+
+        if ($reservation) {
+            $reservation->update(['status' => 'cancelada']);
+        }
+        
+        $book->disminuirStock();
 
         $loan = Loan::create([
             'user_id' => $user->id,
@@ -68,14 +87,20 @@ class LoanService
             'status' => 'aprobado',
         ]);
 
-        $this->notificationService->createNotification(
-            $user->id,
-            'prestamo_creado',
-            'Préstamo Confirmado',
-            "Has solicitado '{$book->title}'. Debes devolverlo antes del {$loan->due_date}."
-        );
+        // 6. Notificaciones
+        try {
+            $user->notify(new LoanApprovedNotification($loan->load('book')));
+        } catch (\Exception $e) {
+            // Fallback to custom notification service if available
+            $this->notificationService->createNotification(
+                $user->id,
+                'prestamo_creado',
+                'Préstamo Confirmado',
+                "Has solicitado '{$book->title}'. Debes devolverlo antes del {$loan->due_date}."
+            );
+        }
 
-        return $loan;
+        return $loan->load('book');
     }
 
     public function markAsReturned(Loan $loan)
@@ -85,47 +110,83 @@ class LoanService
         }
 
         $now = now();
-        $loan->return_date = $now;
-        
-        // Calcular multa (1.00 por día de retraso)
-        $dueDate = \Carbon\Carbon::parse($loan->due_date);
+        $dueDate = Carbon::parse($loan->due_date);
+        $fine = null;
+
+        // Calcular si hay retraso y generar multa automáticamente
         if ($now->greaterThan($dueDate)) {
-            $daysLate = $now->diffInDays($dueDate);
-            $loan->fine_amount = $daysLate * 1.00;
+            $daysOverdue = $now->diffInDays($dueDate);
+            $fineAmount = $daysOverdue * 2.00;
+
+            // Crear la multa
+            $fine = Fine::create([
+                'user_id' => $loan->user_id,
+                'loan_id' => $loan->id,
+                'amount' => $fineAmount,
+                'days_overdue' => $daysOverdue,
+                'status' => 'pendiente',
+            ]);
+
+            // Notificar multa
+            try {
+                $loan->user->notify(new FineGeneratedNotification($fine->load('loan.book')));
+            } catch (\Exception $e) {
+                // Ignore if notification fails
+            }
         }
 
-        $loan->status = 'devuelto';
-        $loan->save();
-
+        // Marcar como devuelto y actualizar stock
+        $loan->update([
+            'return_date' => $now,
+            'status' => 'devuelto'
+        ]);
+        
         // Liberar unidad
         if ($loan->unit) {
             $loan->unit->update(['status' => 'disponible']);
         }
-        
+
         $loan->book->incrementarStock();
 
-        $message = "Has devuelto '{$loan->book->title}' correctamente.";
-        if ($loan->fine_amount > 0) {
-            $message .= " Se ha generado una multa de ${$loan->fine_amount} por retraso.";
-        }
+        // Notificar al siguiente en la cola de reservas
+        $this->reservationService->notifyNextInQueue($loan->book_id);
 
-        $this->notificationService->createNotification(
-            $loan->user_id,
-            'prestamo_devuelto',
-            'Libro Devuelto',
-            $message
-        );
-
-        return $loan;
+        return $loan->load('book', 'fine');
     }
 
     public function payFine(Loan $loan)
     {
-        if ($loan->fine_amount <= 0 || $loan->is_paid) {
+        $fine = Fine::where('loan_id', $loan->id)->where('status', 'pendiente')->first();
+        if (!$fine && (!$loan->fine_amount || $loan->is_paid)) {
             throw new \Exception('No hay multas pendientes para este préstamo.');
         }
 
+        if ($fine) {
+            $fine->update(['status' => 'pagado']);
+        }
+        
         $loan->update(['is_paid' => true]);
+        
         return $loan;
+    }
+
+    public function getOverdueLoans()
+    {
+        return Loan::where('status', 'aprobado')
+            ->whereNull('return_date')
+            ->where('due_date', '<', now())
+            ->with(['user', 'book'])
+            ->get();
+    }
+
+    public function getLoansNearDue()
+    {
+        $threeDaysFromNow = now()->addDays(3);
+        
+        return Loan::where('status', 'aprobado')
+            ->whereNull('return_date')
+            ->whereBetween('due_date', [now(), $threeDaysFromNow])
+            ->with(['user', 'book'])
+            ->get();
     }
 }

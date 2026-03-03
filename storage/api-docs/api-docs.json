@@ -1,17 +1,32 @@
 {
     "openapi": "3.0.0",
     "info": {
+<<<<<<< HEAD
         "title": "Biblioteca API - Enterprise Edition",
         "description": "Documentación completa y profesional de la API para el sistema de gestión de biblioteca. Incluye módulos de administración avanzada, trazabilidad (Audit Logs), reportes dinámicos y herramientas operativas (QR, Bulk Import).",
+=======
+        "title": "API Biblioteca Virtual",
+        "description": "API RESTful completa para gestión de biblioteca virtual",
+>>>>>>> 2ebd9b356779dece4af1bb019456b859e10c13a4
         "contact": {
-            "email": "soporte@bibliotecaapi.com"
+            "name": "Soporte Técnico",
+            "email": "soporte@biblioteca.com"
         },
         "version": "1.0.0"
     },
     "servers": [
         {
+<<<<<<< HEAD
             "url": "http://my-default-host.com",
             "description": "Servidor de API Principal"
+=======
+            "url": "http://127.0.0.1:8000",
+            "description": "Servidor Local"
+        },
+        {
+            "url": "http://localhost:8000",
+            "description": "Servidor Alternativo"
+>>>>>>> 2ebd9b356779dece4af1bb019456b859e10c13a4
         }
     ],
     "paths": {
@@ -393,18 +408,154 @@
                 "tags": [
                     "Books"
                 ],
-                "summary": "List all books",
+                "summary": "List all books with advanced filters",
                 "operationId": "a9d13283dfab262e97af3c914d51b7a8",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Search by title, ISBN or author name",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "author_id",
+                        "in": "query",
+                        "description": "Filter by author ID",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "category_id",
+                        "in": "query",
+                        "description": "Filter by category ID",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "year",
+                        "in": "query",
+                        "description": "Filter by exact year",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "year_from",
+                        "in": "query",
+                        "description": "Filter by year from",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "year_to",
+                        "in": "query",
+                        "description": "Filter by year to",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "available",
+                        "in": "query",
+                        "description": "Filter only available books",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "true",
+                                "false"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "sort",
+                        "in": "query",
+                        "description": "Sort field",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "title",
+                                "year",
+                                "pages",
+                                "created_at",
+                                "stock"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "order",
+                        "in": "query",
+                        "description": "Sort order",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "asc",
+                            "enum": [
+                                "asc",
+                                "desc"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Items per page",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 15
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Successful operation",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/Book"
-                                    }
+                                    "properties": {
+                                        "current_page": {
+                                            "type": "integer"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Book"
+                                            }
+                                        },
+                                        "total": {
+                                            "type": "integer"
+                                        },
+                                        "per_page": {
+                                            "type": "integer"
+                                        },
+                                        "last_page": {
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "type": "object"
                                 }
                             }
                         }
@@ -1037,6 +1188,321 @@
                 ]
             }
         },
+        "/api/fines": {
+            "get": {
+                "tags": [
+                    "Fines"
+                ],
+                "summary": "List authenticated user's fines",
+                "operationId": "8bce2909912a7403a3000d1af6d6192d",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Filter by status",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "pendiente",
+                                "pagada"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of fines"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/fines/summary": {
+            "get": {
+                "tags": [
+                    "Fines"
+                ],
+                "summary": "Get fines summary for authenticated user",
+                "operationId": "ff4d816b23e7264c704a8fe80ea2c436",
+                "responses": {
+                    "200": {
+                        "description": "Fines summary"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/fines/{fine}/pay": {
+            "post": {
+                "tags": [
+                    "Fines"
+                ],
+                "summary": "Pay a fine",
+                "operationId": "43871092bfb697007a3cbca9e513c407",
+                "parameters": [
+                    {
+                        "name": "fine",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Fine paid successfully"
+                    },
+                    "400": {
+                        "description": "Fine already paid"
+                    },
+                    "403": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/fines": {
+            "get": {
+                "tags": [
+                    "Fines"
+                ],
+                "summary": "List all fines (admin only)",
+                "operationId": "2bb11e0dc13b1d77c973be479e09170f",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "pendiente",
+                                "pagada"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of all fines"
+                    },
+                    "403": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Fines"
+                ],
+                "summary": "Create a fine manually (admin only)",
+                "operationId": "992015e7f584403b385594732ba569c1",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "user_id",
+                                    "loan_id",
+                                    "amount",
+                                    "days_overdue"
+                                ],
+                                "properties": {
+                                    "user_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "loan_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "amount": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 10.5
+                                    },
+                                    "days_overdue": {
+                                        "type": "integer",
+                                        "example": 5
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Fine created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Fine"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Unauthorized"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/fines/{fine}": {
+            "put": {
+                "tags": [
+                    "Fines"
+                ],
+                "summary": "Update a fine (admin only)",
+                "operationId": "81bb59870f268c8537ea82a43bc8f148",
+                "parameters": [
+                    {
+                        "name": "fine",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "amount": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 15
+                                    },
+                                    "days_overdue": {
+                                        "type": "integer",
+                                        "example": 7
+                                    },
+                                    "status": {
+                                        "type": "string",
+                                        "enum": [
+                                            "pendiente",
+                                            "pagada"
+                                        ],
+                                        "example": "pendiente"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Fine updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Fine"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Fine not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Fines"
+                ],
+                "summary": "Delete a fine (admin only)",
+                "operationId": "48e574dc6a292cab855b8448ce5a859d",
+                "parameters": [
+                    {
+                        "name": "fine",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Fine deleted"
+                    },
+                    "403": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Fine not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/fines/statistics": {
+            "get": {
+                "tags": [
+                    "Fines"
+                ],
+                "summary": "Get fines statistics (admin only)",
+                "operationId": "e14d054c9c0fafc4ded84100fc9327af",
+                "responses": {
+                    "200": {
+                        "description": "Fines statistics"
+                    },
+                    "403": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "/api/loans": {
             "get": {
                 "tags": [
@@ -1303,6 +1769,15 @@
                                         "message": {
                                             "type": "string",
                                             "example": "Préstamo marcado como devuelto."
+                                        },
+                                        "fine_generated": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "fine_amount": {
+                                            "type": "number",
+                                            "format": "float",
+                                            "example": 10
                                         }
                                     },
                                     "type": "object"
@@ -1324,6 +1799,7 @@
                 ]
             }
         },
+<<<<<<< HEAD
         "/api/admin/dashboard/stats": {
             "get": {
                 "tags": [
@@ -1359,6 +1835,118 @@
                                         }
                                     },
                                     "type": "object"
+=======
+        "/api/loans/overdue": {
+            "get": {
+                "tags": [
+                    "Loans"
+                ],
+                "summary": "Get overdue loans (admin only)",
+                "operationId": "fdc3bcd2be22a0a0fd5952417ec57edf",
+                "responses": {
+                    "200": {
+                        "description": "List of overdue loans",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Loan"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/loans/near-due": {
+            "get": {
+                "tags": [
+                    "Loans"
+                ],
+                "summary": "Get loans near due date (admin only)",
+                "operationId": "66f31f598d4af56f2ee25ffcdc0e4668",
+                "responses": {
+                    "200": {
+                        "description": "List of loans near due date (within 3 days)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Loan"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/notifications": {
+            "get": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Get user notifications",
+                "operationId": "911565ad9aff9ba7eded3f189509e578",
+                "parameters": [
+                    {
+                        "name": "unread",
+                        "in": "query",
+                        "description": "Filter only unread notifications",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of notifications",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "string"
+                                            },
+                                            "type": {
+                                                "type": "string"
+                                            },
+                                            "data": {
+                                                "type": "object"
+                                            },
+                                            "read_at": {
+                                                "type": "string",
+                                                "nullable": true
+                                            },
+                                            "created_at": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+>>>>>>> 2ebd9b356779dece4af1bb019456b859e10c13a4
                                 }
                             }
                         }
@@ -1371,6 +1959,7 @@
                 ]
             }
         },
+<<<<<<< HEAD
         "/api/activity-logs": {
             "get": {
                 "tags": [
@@ -1414,19 +2003,46 @@
                 "summary": "Generar código QR para un libro",
                 "description": "Genera una etiqueta QR en formato SVG con la información del ejemplar.",
                 "operationId": "7035f2f2a5eddf24be59d65a4e746d0f",
+=======
+        "/api/notifications/{id}/read": {
+            "post": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Mark notification as read",
+                "operationId": "ccc13a8ee59dfc08e9b1f80e075ebfc1",
+>>>>>>> 2ebd9b356779dece4af1bb019456b859e10c13a4
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+<<<<<<< HEAD
+=======
+                            "type": "string"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Imagen SVG del código QR"
+                        "description": "Notification marked as read",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Notificación marcada como leída"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Notification not found"
                     }
                 },
                 "security": [
@@ -1436,6 +2052,313 @@
                 ]
             }
         },
+        "/api/notifications/read-all": {
+            "post": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Mark all notifications as read",
+                "operationId": "80760dfd47d7dd101c507f26ca9f0de9",
+                "responses": {
+                    "200": {
+                        "description": "All notifications marked as read",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Todas las notificaciones marcadas como leídas"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/notifications/{id}": {
+            "delete": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Delete a notification",
+                "operationId": "54c4eb5ec5dc0d1e2916cec2fced1056",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Notification deleted"
+                    },
+                    "404": {
+                        "description": "Notification not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/notifications/unread-count": {
+            "get": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Get count of unread notifications",
+                "operationId": "0272623bed30dd4d72141741fb3f25da",
+                "responses": {
+                    "200": {
+                        "description": "Unread notifications count",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "unread_count": {
+                                            "type": "integer",
+                                            "example": 5
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/reservations": {
+            "get": {
+                "tags": [
+                    "Reservations"
+                ],
+                "summary": "List user's reservations",
+                "operationId": "fbc6050d9f7fdb07075d3aaeb157ffa9",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Filter by status",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "pendiente",
+                                "disponible",
+                                "cancelada",
+                                "expirada"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of reservations",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Reservation"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Reservations"
+                ],
+                "summary": "Create a reservation",
+                "operationId": "01e3d21dc330a31de025203bc142ffa3",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "book_id"
+                                ],
+                                "properties": {
+                                    "book_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Reservation created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Reserva creada exitosamente"
+                                        },
+                                        "reservation": {
+                                            "$ref": "#/components/schemas/Reservation"
+                                        },
+                                        "queue_position": {
+                                            "type": "integer",
+                                            "example": 3
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict - Already has reservation"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/reservations/{reservation}": {
+            "get": {
+                "tags": [
+                    "Reservations"
+                ],
+                "summary": "Get reservation details",
+                "operationId": "2aefc564f94e483fb93920c2935eeafe",
+                "parameters": [
+                    {
+                        "name": "reservation",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+>>>>>>> 2ebd9b356779dece4af1bb019456b859e10c13a4
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+<<<<<<< HEAD
+                        "description": "Imagen SVG del código QR"
+=======
+                        "description": "Reservation details",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "reservation": {
+                                            "$ref": "#/components/schemas/Reservation"
+                                        },
+                                        "queue_position": {
+                                            "type": "integer",
+                                            "example": 2
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Reservations"
+                ],
+                "summary": "Cancel a reservation",
+                "operationId": "9cb75e88bfb3a102881ea262dde33019",
+                "parameters": [
+                    {
+                        "name": "reservation",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Reservation cancelled",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Reserva cancelada exitosamente"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Not found"
+>>>>>>> 2ebd9b356779dece4af1bb019456b859e10c13a4
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+<<<<<<< HEAD
         "/api/admin/books/import": {
             "post": {
                 "tags": [
@@ -1452,16 +2375,36 @@
                                     "file": {
                                         "type": "string",
                                         "format": "binary"
-                                    }
-                                },
-                                "type": "object"
-                            }
+=======
+        "/api/admin/reservations": {
+            "get": {
+                "tags": [
+                    "Reservations"
+                ],
+                "summary": "List all reservations (admin only)",
+                "operationId": "2b7df555591bcd7ff850ccb813bc9975",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "pendiente",
+                                "disponible",
+                                "cancelada",
+                                "expirada"
+                            ]
                         }
                     }
-                },
+                ],
                 "responses": {
                     "200": {
-                        "description": "Importación exitosa"
+                        "description": "List of all reservations"
+                    },
+                    "403": {
+                        "description": "Unauthorized"
                     }
                 },
                 "security": [
@@ -1471,6 +2414,98 @@
                 ]
             }
         },
+        "/api/admin/reservations/{reservation}": {
+            "put": {
+                "tags": [
+                    "Reservations"
+                ],
+                "summary": "Update reservation status (admin only)",
+                "operationId": "4f6309eadd3cc2a4a2930600e3f4602f",
+                "parameters": [
+                    {
+                        "name": "reservation",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "status"
+                                ],
+                                "properties": {
+                                    "status": {
+                                        "type": "string",
+                                        "enum": [
+                                            "pendiente",
+                                            "disponible",
+                                            "cancelada",
+                                            "expirada"
+                                        ]
+>>>>>>> 2ebd9b356779dece4af1bb019456b859e10c13a4
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+<<<<<<< HEAD
+                        "description": "Importación exitosa"
+=======
+                        "description": "Reservation updated"
+                    },
+                    "403": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Reservations"
+                ],
+                "summary": "Delete reservation (admin only)",
+                "operationId": "09694538fd7a8403d70dd6b7cbf703ff",
+                "parameters": [
+                    {
+                        "name": "reservation",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Reservation deleted"
+                    },
+                    "403": {
+                        "description": "Unauthorized"
+>>>>>>> 2ebd9b356779dece4af1bb019456b859e10c13a4
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+<<<<<<< HEAD
         "/api/admin/reports/loans": {
             "get": {
                 "tags": [
@@ -1490,12 +2525,49 @@
                                 "pdf",
                                 "excel"
                             ]
-                        }
-                    }
+=======
+        "/api/admin/reservations/statistics": {
+            "get": {
+                "tags": [
+                    "Reservations"
                 ],
+                "summary": "Get reservations statistics (admin only)",
+                "operationId": "c6e67803563d5045ad376a08b5489c4f",
                 "responses": {
                     "200": {
-                        "description": "Archivo descargable"
+                        "description": "Reservations statistics",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "total_reservations": {
+                                            "type": "integer",
+                                            "example": 50
+                                        },
+                                        "pending_reservations": {
+                                            "type": "integer",
+                                            "example": 15
+                                        },
+                                        "available_reservations": {
+                                            "type": "integer",
+                                            "example": 5
+                                        },
+                                        "expired_reservations": {
+                                            "type": "integer",
+                                            "example": 10
+                                        },
+                                        "cancelled_reservations": {
+                                            "type": "integer",
+                                            "example": 20
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Unauthorized"
                     }
                 },
                 "security": [
@@ -1505,6 +2577,284 @@
                 ]
             }
         },
+        "/api/books/{book}/reviews": {
+            "get": {
+                "tags": [
+                    "Reviews"
+                ],
+                "summary": "List reviews of a book",
+                "operationId": "7f71820d71e4a2e36ab0592a2c6b2fc4",
+                "parameters": [
+                    {
+                        "name": "book",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1
+>>>>>>> 2ebd9b356779dece4af1bb019456b859e10c13a4
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+<<<<<<< HEAD
+                        "description": "Archivo descargable"
+=======
+                        "description": "List of reviews",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "current_page": {
+                                            "type": "integer"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Review"
+                                            }
+                                        },
+                                        "total": {
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Book not found"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Reviews"
+                ],
+                "summary": "Create a review for a book",
+                "operationId": "1dbcdc7fd670abbaae2cc3082b825bac",
+                "parameters": [
+                    {
+                        "name": "book",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "rating"
+                                ],
+                                "properties": {
+                                    "rating": {
+                                        "type": "integer",
+                                        "maximum": 5,
+                                        "minimum": 1,
+                                        "example": 5
+                                    },
+                                    "comment": {
+                                        "type": "string",
+                                        "example": "Excelente libro, muy recomendado"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Review created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Review"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "409": {
+                        "description": "Review already exists"
+                    },
+                    "422": {
+                        "description": "Validation error"
+>>>>>>> 2ebd9b356779dece4af1bb019456b859e10c13a4
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+<<<<<<< HEAD
+=======
+        "/api/reviews/{review}": {
+            "put": {
+                "tags": [
+                    "Reviews"
+                ],
+                "summary": "Update own review",
+                "operationId": "ac24d04d9d6d1e7753ce24c811a3cbb0",
+                "parameters": [
+                    {
+                        "name": "review",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "rating"
+                                ],
+                                "properties": {
+                                    "rating": {
+                                        "type": "integer",
+                                        "maximum": 5,
+                                        "minimum": 1,
+                                        "example": 4
+                                    },
+                                    "comment": {
+                                        "type": "string",
+                                        "example": "Actualicé mi opinión"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Review updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Review"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Review not found"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Reviews"
+                ],
+                "summary": "Delete own review",
+                "operationId": "7d89060a6133216c7215b8624ce930fe",
+                "parameters": [
+                    {
+                        "name": "review",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Review deleted"
+                    },
+                    "403": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Review not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/books/{book}/average-rating": {
+            "get": {
+                "tags": [
+                    "Reviews"
+                ],
+                "summary": "Get average rating of a book",
+                "operationId": "d36a8f9c320cf587c267dab5abe28e48",
+                "parameters": [
+                    {
+                        "name": "book",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Average rating",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "average_rating": {
+                                            "type": "number",
+                                            "format": "float",
+                                            "example": 4.5
+                                        },
+                                        "total_reviews": {
+                                            "type": "integer",
+                                            "example": 10
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+>>>>>>> 2ebd9b356779dece4af1bb019456b859e10c13a4
         "/api/users": {
             "get": {
                 "tags": [
@@ -1679,7 +3029,91 @@
     },
     "components": {
         "schemas": {
+            "User": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Juan Pérez"
+                    },
+                    "email": {
+                        "type": "string",
+                        "example": "juan@example.com"
+                    },
+                    "role": {
+                        "type": "string",
+                        "example": "user"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "Author": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Robert C. Martin"
+                    },
+                    "country": {
+                        "type": "string",
+                        "example": "USA"
+                    },
+                    "bio": {
+                        "type": "string",
+                        "example": "Autor de Clean Code"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "Category": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Programación"
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "Libros de programación"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
             "Book": {
+<<<<<<< HEAD
                 "required": [
                     "id",
                     "title",
@@ -1688,6 +3122,8 @@
                     "author_id",
                     "category_id"
                 ],
+=======
+>>>>>>> 2ebd9b356779dece4af1bb019456b859e10c13a4
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -1695,6 +3131,7 @@
                     },
                     "title": {
                         "type": "string",
+<<<<<<< HEAD
                         "example": "Cien años de soledad"
                     },
                     "isbn": {
@@ -1742,6 +3179,29 @@
                     "name": {
                         "type": "string",
                         "example": "Gabriel García Márquez"
+=======
+                        "example": "Clean Code"
+                    },
+                    "author_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "category_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "isbn": {
+                        "type": "string",
+                        "example": "978-0132350884"
+                    },
+                    "published_year": {
+                        "type": "integer",
+                        "example": 2008
+                    },
+                    "stock": {
+                        "type": "integer",
+                        "example": 5
+>>>>>>> 2ebd9b356779dece4af1bb019456b859e10c13a4
                     },
                     "country": {
                         "type": "string",
@@ -1749,7 +3209,23 @@
                     },
                     "bio": {
                         "type": "string",
+<<<<<<< HEAD
                         "nullable": true
+=======
+                        "example": "A Handbook of Agile Software Craftsmanship"
+                    },
+                    "cover_image": {
+                        "type": "string",
+                        "example": "https://example.com/cover.jpg"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+>>>>>>> 2ebd9b356779dece4af1bb019456b859e10c13a4
                     }
                 },
                 "type": "object"
@@ -1772,6 +3248,7 @@
                 "type": "object"
             },
             "Loan": {
+<<<<<<< HEAD
                 "required": [
                     "id",
                     "user_id",
@@ -1810,11 +3287,14 @@
                 "type": "object"
             },
             "ActivityLog": {
+=======
+>>>>>>> 2ebd9b356779dece4af1bb019456b859e10c13a4
                 "properties": {
                     "id": {
                         "type": "integer",
                         "example": 1
                     },
+<<<<<<< HEAD
                     "action": {
                         "type": "string",
                         "example": "Creado"
@@ -1829,6 +3309,110 @@
                     },
                     "user": {
                         "$ref": "#/components/schemas/User"
+=======
+                    "user_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "book_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "loan_date": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2026-01-25"
+                    },
+                    "due_date": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2026-02-09"
+                    },
+                    "return_date": {
+                        "type": "string",
+                        "format": "date",
+                        "nullable": true
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "aprobado"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "Review": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "user_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "book_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "rating": {
+                        "type": "integer",
+                        "example": 5
+                    },
+                    "comment": {
+                        "type": "string",
+                        "example": "Excelente libro"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "Fine": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "user_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "loan_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "amount": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 10
+                    },
+                    "days_overdue": {
+                        "type": "integer",
+                        "example": 5
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "pendiente"
+                    },
+                    "paid_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+>>>>>>> 2ebd9b356779dece4af1bb019456b859e10c13a4
                     },
                     "created_at": {
                         "type": "string",
@@ -1837,12 +3421,17 @@
                 },
                 "type": "object"
             },
+<<<<<<< HEAD
             "User": {
+=======
+            "Reservation": {
+>>>>>>> 2ebd9b356779dece4af1bb019456b859e10c13a4
                 "properties": {
                     "id": {
                         "type": "integer",
                         "example": 1
                     },
+<<<<<<< HEAD
                     "name": {
                         "type": "string",
                         "example": "Admin Principal"
@@ -1850,24 +3439,75 @@
                     "email": {
                         "type": "string",
                         "example": "admin@biblioteca.com"
+=======
+                    "user_id": {
+                        "type": "integer",
+                        "example": 1
                     },
-                    "role": {
+                    "book_id": {
+                        "type": "integer",
+                        "example": 1
+>>>>>>> 2ebd9b356779dece4af1bb019456b859e10c13a4
+                    },
+                    "status": {
                         "type": "string",
+<<<<<<< HEAD
                         "example": "admin"
+=======
+                        "example": "pendiente"
+                    },
+                    "reserved_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "notified_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "expires_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+>>>>>>> 2ebd9b356779dece4af1bb019456b859e10c13a4
                     }
                 },
                 "type": "object"
+            }
+        },
+        "securitySchemes": {
+            "sanctum": {
+                "type": "http",
+                "description": "Token de autenticación Sanctum",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
             }
         }
     },
     "tags": [
         {
             "name": "Authentication",
-            "description": "Endpoints para registro, login y logout"
+            "description": "Autenticación"
         },
         {
-            "name": "Favorite",
-            "description": "Operations to manage users' favorite books"
+            "name": "Books",
+            "description": "Libros"
+        },
+        {
+            "name": "Categories",
+            "description": "Categorías"
+        },
+        {
+            "name": "Authors",
+            "description": "Autores"
         },
         {
             "name": "Admin | Dashboard",
@@ -1886,20 +3526,28 @@
             "description": "Operations for user management"
         },
         {
-            "name": "Authors",
-            "description": "Authors"
-        },
-        {
-            "name": "Books",
-            "description": "Books"
-        },
-        {
-            "name": "Categories",
-            "description": "Categories"
-        },
-        {
             "name": "Loans",
-            "description": "Loans"
+            "description": "Préstamos"
+        },
+        {
+            "name": "Reviews",
+            "description": "Reseñas"
+        },
+        {
+            "name": "Fines",
+            "description": "Multas"
+        },
+        {
+            "name": "Notifications",
+            "description": "Notificaciones"
+        },
+        {
+            "name": "Reservations",
+            "description": "Reservas"
+        },
+        {
+            "name": "Favorite",
+            "description": "Operations to manage users' favorite books"
         }
     ]
 }

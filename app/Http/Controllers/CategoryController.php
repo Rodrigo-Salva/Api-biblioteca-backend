@@ -19,7 +19,6 @@ class CategoryController extends Controller
         $this->service = $service;
     }
 
-
     /**
      * @OA\Get(
      *     path="/api/categories",

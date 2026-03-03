@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Book;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreBookRequest;
 use App\Http\Requests\UpdateBookRequest;
 use App\Http\Service\BookService as ServiceBookService;
@@ -22,12 +22,99 @@ class BookController extends Controller
     /**
      * @OA\Get(
      *     path="/api/books",
-     *     summary="List all books",
+     *     summary="List all books with advanced filters",
      *     tags={"Books"},
+     *     @OA\Parameter(
+     *         name="search",
+     *         in="query",
+     *         description="Search by title, ISBN or author name",
+     *         required=false,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="author_id",
+     *         in="query",
+     *         description="Filter by author ID",
+     *         required=false,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Parameter(
+     *         name="category_id",
+     *         in="query",
+     *         description="Filter by category ID",
+     *         required=false,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Parameter(
+     *         name="year",
+     *         in="query",
+     *         description="Filter by exact year",
+     *         required=false,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Parameter(
+     *         name="year_from",
+     *         in="query",
+     *         description="Filter by year from",
+     *         required=false,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Parameter(
+     *         name="year_to",
+     *         in="query",
+     *         description="Filter by year to",
+     *         required=false,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Parameter(
+     *         name="available",
+     *         in="query",
+     *         description="Filter only available books",
+     *         required=false,
+     *         @OA\Schema(type="string", enum={"true", "false"})
+     *     ),
+     *     @OA\Parameter(
+     *         name="sort",
+     *         in="query",
+     *         description="Sort field",
+     *         required=false,
+     *         @OA\Schema(type="string", enum={"title", "year", "pages", "created_at", "stock"})
+     *     ),
+     *     @OA\Parameter(
+     *         name="order",
+     *         in="query",
+     *         description="Sort order",
+     *         required=false,
+     *         @OA\Schema(type="string", enum={"asc", "desc"}, default="asc")
+     *     ),
+     *     @OA\Parameter(
+     *         name="per_page",
+     *         in="query",
+     *         description="Items per page",
+     *         required=false,
+     *         @OA\Schema(type="integer", default=15)
+     *     ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="Page number",
+     *         required=false,
+     *         @OA\Schema(type="integer", default=1)
+     *     ),
      *     @OA\Response(
      *         response=200,
      *         description="Successful operation",
-     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Book"))
+     *         @OA\JsonContent(
+     *             @OA\Property(property="current_page", type="integer"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="array",
+     *                 @OA\Items(ref="#/components/schemas/Book")
+     *             ),
+     *             @OA\Property(property="total", type="integer"),
+     *             @OA\Property(property="per_page", type="integer"),
+     *             @OA\Property(property="last_page", type="integer")
+     *         )
      *     )
      * )
      */
@@ -35,6 +122,7 @@ class BookController extends Controller
     {
         return $this->bookService->list($request->all());
     }
+
 
     /**
      * @OA\Post(
@@ -169,18 +257,6 @@ class BookController extends Controller
         return response()->json(null, 204);
     }
 
-/**
- * @OA\Get(
- *     path="/api/books/available",
- *     summary="List books with stock available",
- *     tags={"Books"},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation",
- *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Book"))
- *     )
- * )
- */
     public function available(Request $request)
     {
         return response()->json($this->bookService->available($request->all()));

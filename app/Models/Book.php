@@ -7,15 +7,26 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\Author;
 use App\Models\Category;
 
-
 /**
  * @mixin IdeHelperBook
  */
 class Book extends Model
 {
-
     use HasFactory;
-    protected $fillable = ['title', 'isbn', 'year', 'author_id', 'category_id', 'synopsis', 'pages', 'publisher', 'stock', 'cover_image'];
+
+    protected $fillable = [
+        'title',
+        'isbn',
+        'year',
+        'author_id',
+        'category_id',
+        'synopsis',
+        'pages',
+        'publisher',
+        'stock',
+        'cover_image'
+    ];
+
     protected $appends = ['cover_image_url'];
 
     public function author()
@@ -48,8 +59,12 @@ class Book extends Model
         return $this->hasMany(BookUnit::class);
     }
 
-    public function disminuirStock()
+    public function favoredBy()
+    {
+        return $this->belongsToMany(\App\Models\User::class, 'favorites');
+    }
 
+    public function disminuirStock()
     {
         if ($this->stock <= 0) {
             throw new \Exception('El libro no está disponible (sin stock)');
@@ -65,12 +80,30 @@ class Book extends Model
         $this->save();
     }
 
-    public function favoredBy(){
-        return $this->belongsToMany(\App\Models\User::class, 'favorites');
-    }
-    
     public function getCoverImageUrlAttribute()
     {
-    return $this->cover_image ? asset('storage/' . $this->cover_image) : null; 
+        return $this->cover_image ? asset('storage/' . $this->cover_image) : null;
+    }
+
+    public function averageRating()
+    {
+        return round($this->reviews()->avg('rating'), 2);
+    }
+
+    public function reviewsCount()
+    {
+        return $this->reviews()->count();
+    }
+
+    public function activeReservations()
+    {
+        return $this->reservations()
+            ->whereIn('status', ['pendiente', 'disponible'])
+            ->orderBy('reserved_at', 'asc');
+    }
+
+    public function pendingReservationsCount()
+    {
+        return $this->reservations()->where('status', 'pendiente')->count();
     }
 }

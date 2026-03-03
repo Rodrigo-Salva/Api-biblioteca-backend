@@ -72,4 +72,22 @@ class User extends Authenticatable
     {
         return $this->hasMany(Collection::class);
     }
+
+    public function fines()
+    {
+        return $this->hasMany(Fine::class);
+    }
+
+    public function hasPendingFines()
+    {
+        return $this->fines()->where('status', 'pendiente')->exists();
+    }
+
+    public function hasActiveReservation($bookId)
+    {
+        return $this->reservations()
+            ->where('book_id', $bookId)
+            ->whereIn('status', ['pendiente', 'disponible'])
+            ->exists();
+    }
 }
