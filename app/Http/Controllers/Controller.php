@@ -134,6 +134,18 @@ use Illuminate\Routing\Controller as BaseController;
  *     @OA\Property(property="created_at", type="string", format="date-time"),
  *     @OA\Property(property="updated_at", type="string", format="date-time")
  * )
+ *
+ * @OA\Schema(
+ *     schema="Review",
+ *     type="object",
+ *     @OA\Property(property="id", type="integer", example=1),
+ *     @OA\Property(property="user_id", type="integer", example=1),
+ *     @OA\Property(property="book_id", type="integer", example=1),
+ *     @OA\Property(property="rating", type="integer", example=5),
+ *     @OA\Property(property="comment", type="string", example="Excelente libro"),
+ *     @OA\Property(property="created_at", type="string", format="date-time"),
+ *     @OA\Property(property="updated_at", type="string", format="date-time")
+ * )
  */
 class Controller extends BaseController
 {

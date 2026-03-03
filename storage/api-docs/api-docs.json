@@ -1,32 +1,17 @@
 {
     "openapi": "3.0.0",
     "info": {
-<<<<<<< HEAD
         "title": "Biblioteca API - Enterprise Edition",
         "description": "Documentación completa y profesional de la API para el sistema de gestión de biblioteca. Incluye módulos de administración avanzada, trazabilidad (Audit Logs), reportes dinámicos y herramientas operativas (QR, Bulk Import).",
-=======
-        "title": "API Biblioteca Virtual",
-        "description": "API RESTful completa para gestión de biblioteca virtual",
->>>>>>> 2ebd9b356779dece4af1bb019456b859e10c13a4
         "contact": {
-            "name": "Soporte Técnico",
-            "email": "soporte@biblioteca.com"
+            "email": "soporte@bibliotecaapi.com"
         },
         "version": "1.0.0"
     },
     "servers": [
         {
-<<<<<<< HEAD
             "url": "http://my-default-host.com",
             "description": "Servidor de API Principal"
-=======
-            "url": "http://127.0.0.1:8000",
-            "description": "Servidor Local"
-        },
-        {
-            "url": "http://localhost:8000",
-            "description": "Servidor Alternativo"
->>>>>>> 2ebd9b356779dece4af1bb019456b859e10c13a4
         }
     ],
     "paths": {
@@ -817,30 +802,6 @@
                         "sanctum": []
                     }
                 ]
-            }
-        },
-        "/api/books/available": {
-            "get": {
-                "tags": [
-                    "Books"
-                ],
-                "summary": "List books with stock available",
-                "operationId": "d5cf66000c73ee47c7a8d0e5fea9eb9f",
-                "responses": {
-                    "200": {
-                        "description": "Successful operation",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/Book"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
             }
         },
         "/api/categories": {
@@ -1799,43 +1760,6 @@
                 ]
             }
         },
-<<<<<<< HEAD
-        "/api/admin/dashboard/stats": {
-            "get": {
-                "tags": [
-                    "Admin | Dashboard"
-                ],
-                "summary": "Estadísticas globales para el Dashboard",
-                "description": "Retorna indicadores clave (KPIs), tendencias mensuales y distribución de categorías.",
-                "operationId": "c81a716313e4e3f7b436c144b03b3a87",
-                "responses": {
-                    "200": {
-                        "description": "Datos estadísticos cargados con éxito",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "cards": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object"
-                                            }
-                                        },
-                                        "monthlyTrends": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object"
-                                            }
-                                        },
-                                        "categoryDistribution": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object"
-                                            }
-                                        }
-                                    },
-                                    "type": "object"
-=======
         "/api/loans/overdue": {
             "get": {
                 "tags": [
@@ -1946,7 +1870,6 @@
                                         },
                                         "type": "object"
                                     }
->>>>>>> 2ebd9b356779dece4af1bb019456b859e10c13a4
                                 }
                             }
                         }
@@ -1959,67 +1882,19 @@
                 ]
             }
         },
-<<<<<<< HEAD
-        "/api/activity-logs": {
-            "get": {
-                "tags": [
-                    "Admin | Audit Logs"
-                ],
-                "summary": "Listado de logs de auditoría",
-                "description": "Retorna el registro histórico de acciones realizadas por los administradores (trazabilidad).",
-                "operationId": "735642cec37d1899bdc375f587063ac7",
-                "responses": {
-                    "200": {
-                        "description": "Lista paginada de logs",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/components/schemas/ActivityLog"
-                                            }
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
-            }
-        },
-        "/api/books/{id}/qr": {
-            "get": {
-                "tags": [
-                    "Admin | Tools"
-                ],
-                "summary": "Generar código QR para un libro",
-                "description": "Genera una etiqueta QR en formato SVG con la información del ejemplar.",
-                "operationId": "7035f2f2a5eddf24be59d65a4e746d0f",
-=======
         "/api/notifications/{id}/read": {
             "post": {
                 "tags": [
                     "Notifications"
                 ],
                 "summary": "Mark notification as read",
-                "operationId": "ccc13a8ee59dfc08e9b1f80e075ebfc1",
->>>>>>> 2ebd9b356779dece4af1bb019456b859e10c13a4
+                "operationId": "d3c26645cf40210e054d72089f8097a5",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
                         "required": true,
                         "schema": {
-<<<<<<< HEAD
-=======
                             "type": "string"
                         }
                     }
@@ -2269,16 +2144,12 @@
                         "in": "path",
                         "required": true,
                         "schema": {
->>>>>>> 2ebd9b356779dece4af1bb019456b859e10c13a4
                             "type": "integer"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-<<<<<<< HEAD
-                        "description": "Imagen SVG del código QR"
-=======
                         "description": "Reservation details",
                         "content": {
                             "application/json": {
@@ -2348,7 +2219,6 @@
                     },
                     "404": {
                         "description": "Not found"
->>>>>>> 2ebd9b356779dece4af1bb019456b859e10c13a4
                     }
                 },
                 "security": [
@@ -2358,24 +2228,6 @@
                 ]
             }
         },
-<<<<<<< HEAD
-        "/api/admin/books/import": {
-            "post": {
-                "tags": [
-                    "Admin | Tools"
-                ],
-                "summary": "Importación masiva de libros vía CSV",
-                "description": "Permite cargar múltiples libros, creando autores y categorías automáticamente si no existen.",
-                "operationId": "f120314346ca7195e768e10c84bed488",
-                "requestBody": {
-                    "content": {
-                        "multipart/form-data": {
-                            "schema": {
-                                "properties": {
-                                    "file": {
-                                        "type": "string",
-                                        "format": "binary"
-=======
         "/api/admin/reservations": {
             "get": {
                 "tags": [
@@ -2448,7 +2300,6 @@
                                             "cancelada",
                                             "expirada"
                                         ]
->>>>>>> 2ebd9b356779dece4af1bb019456b859e10c13a4
                                     }
                                 },
                                 "type": "object"
@@ -2458,9 +2309,6 @@
                 },
                 "responses": {
                     "200": {
-<<<<<<< HEAD
-                        "description": "Importación exitosa"
-=======
                         "description": "Reservation updated"
                     },
                     "403": {
@@ -2495,7 +2343,6 @@
                     },
                     "403": {
                         "description": "Unauthorized"
->>>>>>> 2ebd9b356779dece4af1bb019456b859e10c13a4
                     }
                 },
                 "security": [
@@ -2505,27 +2352,6 @@
                 ]
             }
         },
-<<<<<<< HEAD
-        "/api/admin/reports/loans": {
-            "get": {
-                "tags": [
-                    "Admin | Tools"
-                ],
-                "summary": "Exportar reporte de préstamos",
-                "description": "Genera documentos en formato PDF o Excel con el historial de préstamos.",
-                "operationId": "2231b3b9118fd8771a2bf8c9f90b2311",
-                "parameters": [
-                    {
-                        "name": "format",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "enum": [
-                                "pdf",
-                                "excel"
-                            ]
-=======
         "/api/admin/reservations/statistics": {
             "get": {
                 "tags": [
@@ -2600,15 +2426,11 @@
                         "schema": {
                             "type": "integer",
                             "default": 1
->>>>>>> 2ebd9b356779dece4af1bb019456b859e10c13a4
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-<<<<<<< HEAD
-                        "description": "Archivo descargable"
-=======
                         "description": "List of reviews",
                         "content": {
                             "application/json": {
@@ -2697,7 +2519,6 @@
                     },
                     "422": {
                         "description": "Validation error"
->>>>>>> 2ebd9b356779dece4af1bb019456b859e10c13a4
                     }
                 },
                 "security": [
@@ -2707,8 +2528,6 @@
                 ]
             }
         },
-<<<<<<< HEAD
-=======
         "/api/reviews/{review}": {
             "put": {
                 "tags": [
@@ -2854,7 +2673,6 @@
                 }
             }
         },
->>>>>>> 2ebd9b356779dece4af1bb019456b859e10c13a4
         "/api/users": {
             "get": {
                 "tags": [
@@ -3029,91 +2847,7 @@
     },
     "components": {
         "schemas": {
-            "User": {
-                "properties": {
-                    "id": {
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "name": {
-                        "type": "string",
-                        "example": "Juan Pérez"
-                    },
-                    "email": {
-                        "type": "string",
-                        "example": "juan@example.com"
-                    },
-                    "role": {
-                        "type": "string",
-                        "example": "user"
-                    },
-                    "created_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "updated_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    }
-                },
-                "type": "object"
-            },
-            "Author": {
-                "properties": {
-                    "id": {
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "name": {
-                        "type": "string",
-                        "example": "Robert C. Martin"
-                    },
-                    "country": {
-                        "type": "string",
-                        "example": "USA"
-                    },
-                    "bio": {
-                        "type": "string",
-                        "example": "Autor de Clean Code"
-                    },
-                    "created_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "updated_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    }
-                },
-                "type": "object"
-            },
-            "Category": {
-                "properties": {
-                    "id": {
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "name": {
-                        "type": "string",
-                        "example": "Programación"
-                    },
-                    "description": {
-                        "type": "string",
-                        "example": "Libros de programación"
-                    },
-                    "created_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "updated_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    }
-                },
-                "type": "object"
-            },
             "Book": {
-<<<<<<< HEAD
                 "required": [
                     "id",
                     "title",
@@ -3122,8 +2856,6 @@
                     "author_id",
                     "category_id"
                 ],
-=======
->>>>>>> 2ebd9b356779dece4af1bb019456b859e10c13a4
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -3131,7 +2863,6 @@
                     },
                     "title": {
                         "type": "string",
-<<<<<<< HEAD
                         "example": "Cien años de soledad"
                     },
                     "isbn": {
@@ -3179,29 +2910,6 @@
                     "name": {
                         "type": "string",
                         "example": "Gabriel García Márquez"
-=======
-                        "example": "Clean Code"
-                    },
-                    "author_id": {
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "category_id": {
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "isbn": {
-                        "type": "string",
-                        "example": "978-0132350884"
-                    },
-                    "published_year": {
-                        "type": "integer",
-                        "example": 2008
-                    },
-                    "stock": {
-                        "type": "integer",
-                        "example": 5
->>>>>>> 2ebd9b356779dece4af1bb019456b859e10c13a4
                     },
                     "country": {
                         "type": "string",
@@ -3209,23 +2917,7 @@
                     },
                     "bio": {
                         "type": "string",
-<<<<<<< HEAD
                         "nullable": true
-=======
-                        "example": "A Handbook of Agile Software Craftsmanship"
-                    },
-                    "cover_image": {
-                        "type": "string",
-                        "example": "https://example.com/cover.jpg"
-                    },
-                    "created_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "updated_at": {
-                        "type": "string",
-                        "format": "date-time"
->>>>>>> 2ebd9b356779dece4af1bb019456b859e10c13a4
                     }
                 },
                 "type": "object"
@@ -3248,7 +2940,6 @@
                 "type": "object"
             },
             "Loan": {
-<<<<<<< HEAD
                 "required": [
                     "id",
                     "user_id",
@@ -3278,6 +2969,10 @@
                         "type": "string",
                         "format": "date"
                     },
+                    "due_date": {
+                        "type": "string",
+                        "format": "date"
+                    },
                     "return_date": {
                         "type": "string",
                         "format": "date",
@@ -3287,14 +2982,11 @@
                 "type": "object"
             },
             "ActivityLog": {
-=======
->>>>>>> 2ebd9b356779dece4af1bb019456b859e10c13a4
                 "properties": {
                     "id": {
                         "type": "integer",
                         "example": 1
                     },
-<<<<<<< HEAD
                     "action": {
                         "type": "string",
                         "example": "Creado"
@@ -3309,7 +3001,84 @@
                     },
                     "user": {
                         "$ref": "#/components/schemas/User"
-=======
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "User": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Admin Principal"
+                    },
+                    "email": {
+                        "type": "string",
+                        "example": "admin@biblioteca.com"
+                    },
+                    "role": {
+                        "type": "string",
+                        "example": "admin"
+                    }
+                },
+                "type": "object"
+            },
+            "Fine": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "user_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "loan_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "amount": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 10
+                    },
+                    "days_overdue": {
+                        "type": "integer",
+                        "example": 5
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "pendiente"
+                    },
+                    "paid_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "Reservation": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
                     "user_id": {
                         "type": "integer",
                         "example": 1
@@ -3318,24 +3087,23 @@
                         "type": "integer",
                         "example": 1
                     },
-                    "loan_date": {
-                        "type": "string",
-                        "format": "date",
-                        "example": "2026-01-25"
-                    },
-                    "due_date": {
-                        "type": "string",
-                        "format": "date",
-                        "example": "2026-02-09"
-                    },
-                    "return_date": {
-                        "type": "string",
-                        "format": "date",
-                        "nullable": true
-                    },
                     "status": {
                         "type": "string",
-                        "example": "aprobado"
+                        "example": "pendiente"
+                    },
+                    "reserved_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "notified_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "expires_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
                     },
                     "created_at": {
                         "type": "string",
@@ -3380,107 +3148,6 @@
                     }
                 },
                 "type": "object"
-            },
-            "Fine": {
-                "properties": {
-                    "id": {
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "user_id": {
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "loan_id": {
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "amount": {
-                        "type": "number",
-                        "format": "float",
-                        "example": 10
-                    },
-                    "days_overdue": {
-                        "type": "integer",
-                        "example": 5
-                    },
-                    "status": {
-                        "type": "string",
-                        "example": "pendiente"
-                    },
-                    "paid_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "nullable": true
->>>>>>> 2ebd9b356779dece4af1bb019456b859e10c13a4
-                    },
-                    "created_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    }
-                },
-                "type": "object"
-            },
-<<<<<<< HEAD
-            "User": {
-=======
-            "Reservation": {
->>>>>>> 2ebd9b356779dece4af1bb019456b859e10c13a4
-                "properties": {
-                    "id": {
-                        "type": "integer",
-                        "example": 1
-                    },
-<<<<<<< HEAD
-                    "name": {
-                        "type": "string",
-                        "example": "Admin Principal"
-                    },
-                    "email": {
-                        "type": "string",
-                        "example": "admin@biblioteca.com"
-=======
-                    "user_id": {
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "book_id": {
-                        "type": "integer",
-                        "example": 1
->>>>>>> 2ebd9b356779dece4af1bb019456b859e10c13a4
-                    },
-                    "status": {
-                        "type": "string",
-<<<<<<< HEAD
-                        "example": "admin"
-=======
-                        "example": "pendiente"
-                    },
-                    "reserved_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "notified_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "nullable": true
-                    },
-                    "expires_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "nullable": true
-                    },
-                    "created_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "updated_at": {
-                        "type": "string",
-                        "format": "date-time"
->>>>>>> 2ebd9b356779dece4af1bb019456b859e10c13a4
-                    }
-                },
-                "type": "object"
             }
         },
         "securitySchemes": {
@@ -3495,39 +3162,11 @@
     "tags": [
         {
             "name": "Authentication",
-            "description": "Autenticación"
+            "description": "Endpoints para registro, login y logout"
         },
         {
-            "name": "Books",
-            "description": "Libros"
-        },
-        {
-            "name": "Categories",
-            "description": "Categorías"
-        },
-        {
-            "name": "Authors",
-            "description": "Autores"
-        },
-        {
-            "name": "Admin | Dashboard",
-            "description": "Estadísticas avanzadas y analíticas"
-        },
-        {
-            "name": "Admin | Audit Logs",
-            "description": "Trazabilidad y auditoría de acciones"
-        },
-        {
-            "name": "Admin | Tools",
-            "description": "Herramientas operativas (QR, Import)"
-        },
-        {
-            "name": "Users",
-            "description": "Operations for user management"
-        },
-        {
-            "name": "Loans",
-            "description": "Préstamos"
+            "name": "Reservations",
+            "description": "Reservas"
         },
         {
             "name": "Reviews",
@@ -3538,16 +3177,32 @@
             "description": "Multas"
         },
         {
-            "name": "Notifications",
-            "description": "Notificaciones"
-        },
-        {
-            "name": "Reservations",
-            "description": "Reservas"
-        },
-        {
             "name": "Favorite",
             "description": "Operations to manage users' favorite books"
+        },
+        {
+            "name": "Users",
+            "description": "Operations for user management"
+        },
+        {
+            "name": "Authors",
+            "description": "Authors"
+        },
+        {
+            "name": "Books",
+            "description": "Books"
+        },
+        {
+            "name": "Categories",
+            "description": "Categories"
+        },
+        {
+            "name": "Loans",
+            "description": "Loans"
+        },
+        {
+            "name": "Notifications",
+            "description": "Notifications"
         }
     ]
 }
