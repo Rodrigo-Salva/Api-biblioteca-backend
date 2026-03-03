@@ -4,30 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Book;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 use App\Http\Requests\StoreBookRequest;
 use App\Http\Requests\UpdateBookRequest;
 use App\Http\Service\BookService as ServiceBookService;
+use App\Helpers\LogHelper;
 
-/**
- * @OA\Schema(
- *     schema="Book",
- *     type="object",
- *     title="Book",
- *     required={"id", "title", "isbn", "year", "author_id", "category_id"},
- *     @OA\Property(property="id", type="integer", example=1),
- *     @OA\Property(property="title", type="string", example="El señor de los anillos"),
- *     @OA\Property(property="isbn", type="string", example="9788478884453"),
- *     @OA\Property(property="year", type="integer", example=1954),
- *     @OA\Property(property="author_id", type="integer", example=2),
- *     @OA\Property(property="category_id", type="integer", example=3),
- *     @OA\Property(property="cover_image", type="string", nullable=true, example="covers/imagen.jpg"),
- *     @OA\Property(property="cover_image_url", type="string", nullable=true, example="http://tu-dominio/storage/covers/imagen.jpg"),
- *     @OA\Property(property="synopsis", type="string", nullable=true, example="Una historia fantástica..."),
- *     @OA\Property(property="pages", type="integer", nullable=true, example=423),
- *     @OA\Property(property="publisher", type="string", nullable=true, example="Editorial XYZ"),
- *     @OA\Property(property="stock", type="integer", nullable=true, example=10)
- * )
- */
 class BookController extends Controller
 {
     protected $bookService;
@@ -49,9 +31,9 @@ class BookController extends Controller
      *     )
      * )
      */
-    public function index()
+    public function index(Request $request)
     {
-        return $this->bookService->list();
+        return $this->bookService->list($request->all());
     }
 
     /**
@@ -88,6 +70,7 @@ class BookController extends Controller
         }
 
         $book = $this->bookService->create($request->validated(), $request->file('cover_image'));
+        LogHelper::log('Creado', 'Libro', $book->id, "Título: {$book->title}");
         return response()->json($book, 201);
     }
 
@@ -153,6 +136,7 @@ class BookController extends Controller
         }
 
         $book = $this->bookService->update($book, $request->validated(), $request->file('cover_image'));
+        LogHelper::log('Actualizado', 'Libro', $book->id, "Título: {$book->title}");
         return response()->json($book);
     }
 
@@ -181,6 +165,7 @@ class BookController extends Controller
         }
 
         $this->bookService->delete($book);
+        LogHelper::log('Eliminado', 'Libro', $book->id, "Título: {$book->title}");
         return response()->json(null, 204);
     }
 
@@ -196,8 +181,16 @@ class BookController extends Controller
  *     )
  * )
  */
-   public function available()
+    public function available(Request $request)
     {
-        return response()->json($this->bookService->available());
+        return response()->json($this->bookService->available($request->all()));
+    }
+
+    public function recommendations()
+    {
+        if (!\Illuminate\Support\Facades\Auth::check()) {
+            return response()->json([]);
+        }
+        return response()->json($this->bookService->getRecommendations(\Illuminate\Support\Facades\Auth::user()));
     }
 }

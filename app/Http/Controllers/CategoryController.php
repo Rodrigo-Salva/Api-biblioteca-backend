@@ -8,18 +8,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreCategoryRequest;
 use App\Http\Requests\UpdateCategoryRequest;
 use App\Http\Service\CategoryService;
+use App\Helpers\LogHelper;
 
-/**
- * @OA\Schema(
- *     schema="Category",
- *     type="object",
- *     title="Category",
- *     required={"id", "name"},
- *     @OA\Property(property="id", type="integer", example=1),
- *     @OA\Property(property="name", type="string", example="Ficción"),
- *     @OA\Property(property="description", type="string", nullable=true, example="Libros de ficción y narrativa"),
- * )
- */
 class CategoryController extends Controller
 {
     protected $service;
@@ -42,9 +32,9 @@ class CategoryController extends Controller
      *     )
      * )
      */
-    public function index()
+    public function index(Request $request)
     {
-        return $this->service->list();
+        return $this->service->list($request->has('all'));
     }
 
     /**
@@ -71,7 +61,9 @@ class CategoryController extends Controller
         if (!Auth::check() || Auth::user()->role !== 'admin') {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
-        return $this->service->create($request->validated());
+        $category = $this->service->create($request->validated());
+        LogHelper::log('Creado', 'Categoría', $category->id, "Nombre: {$category->name}");
+        return $category;
     }
 
     /**
@@ -127,7 +119,9 @@ class CategoryController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        return $this->service->update($category, $request->validated());
+        $category = $this->service->update($category, $request->validated());
+        LogHelper::log('Actualizado', 'Categoría', $category->id, "Nombre: {$category->name}");
+        return $category;
     }
 
     /**
@@ -154,6 +148,7 @@ class CategoryController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
+        LogHelper::log('Eliminado', 'Categoría', $category->id, "Nombre: {$category->name}");
         $category->delete();
         return response()->noContent();
     }

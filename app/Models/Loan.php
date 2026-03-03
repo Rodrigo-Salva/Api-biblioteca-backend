@@ -13,7 +13,7 @@ use App\Models\Book;
 class Loan extends Model
 {
     use HasFactory;
-    protected $fillable = ['user_id', 'book_id', 'loan_date', 'return_date', 'status'];
+    protected $fillable = ['user_id', 'book_id', 'book_unit_id', 'loan_date', 'due_date', 'return_date', 'status', 'fine_amount', 'is_paid'];
 
     public function user() {
         return $this->belongsTo(User::class);
@@ -21,6 +21,10 @@ class Loan extends Model
 
     public function book() {
         return $this->belongsTo(Book::class);
+    }
+
+    public function unit() {
+        return $this->belongsTo(BookUnit::class, 'book_unit_id');
     }
 
 }

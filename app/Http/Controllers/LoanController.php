@@ -7,21 +7,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreLoanRequest;
 use App\Http\Requests\UpdateLoanRequest;
 use App\Http\Service\LoanService;
+use App\Helpers\LogHelper;
 
-/**
- * @OA\Schema(
- *     schema="Loan",
- *     type="object",
- *     title="Loan",
- *     required={"id", "user_id", "book_id", "status"},
- *     @OA\Property(property="id", type="integer", example=5),
- *     @OA\Property(property="user_id", type="integer", example=3),
- *     @OA\Property(property="book_id", type="integer", example=11),
- *     @OA\Property(property="loan_date", type="string", format="date", nullable=true, example="2025-06-01"),
- *     @OA\Property(property="return_date", type="string", format="date", nullable=true, example="2025-06-15"),
- *     @OA\Property(property="status", type="string", example="aprobado"),
- * )
- */
 class LoanController extends Controller
 {
     protected $service;
@@ -81,6 +68,8 @@ class LoanController extends Controller
 
         try {
             $loan = $this->service->createLoan($user, $request->validated());
+
+            LogHelper::log('Creado', 'Préstamo', $loan->id, "Usuario: {$loan->user->name}, Libro: {$loan->book->title}");
 
             return response()->json([
                 'message' => 'Préstamo aprobado automáticamente.',
@@ -161,6 +150,8 @@ class LoanController extends Controller
             $loan->book->incrementarStock();
         }
 
+        LogHelper::log('Actualizado', 'Préstamo', $loan->id, "Estado: {$loan->status}");
+
         return $loan;
     }
 
@@ -187,6 +178,7 @@ class LoanController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
+        LogHelper::log('Eliminado', 'Préstamo', $loan->id, "ID Préstamo: {$loan->id}");
         $loan->delete();
         return response()->noContent();
     }
@@ -233,6 +225,18 @@ class LoanController extends Controller
             return response()->json(['message' => $e->getMessage()], 404);
         }
 
+        LogHelper::log('Devuelto', 'Préstamo', $loan->id, "Libro devuelto por admin");
+
         return response()->json(['message' => 'Préstamo marcado como devuelto.']);
+    }
+
+    public function payFine(Loan $loan)
+    {
+        try {
+            $updatedLoan = $this->service->payFine($loan);
+            return response()->json($updatedLoan);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 400);
+        }
     }
 }

@@ -9,6 +9,19 @@ use App\Http\Controllers\AuthorController;
 use App\Http\Controllers\LoanController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\FavoriteController;
+use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\ReservationController;
+use App\Http\Controllers\AdminDashboardController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\BookUnitController;
+use App\Http\Controllers\CollectionController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\BookQRController;
+use App\Http\Controllers\BookImportController;
+use App\Http\Controllers\BannerController;
+use App\Http\Controllers\HelpRequestController;
 use Illuminate\Http\Request;
 // Rutas públicas
 Route::post('/register', [AuthController::class, 'register']);
@@ -16,6 +29,7 @@ Route::post('/login', [AuthController::class, 'login']);
 
 // Ruta pública para listar libros con stock disponible
 Route::get('/books/available', [BookController::class, 'available']);
+Route::get('/banners', [BannerController::class, 'index']);
 
 // Rutas protegidas por autenticacion Sanctum
 Route::middleware('auth:sanctum')->group(function () {
@@ -40,6 +54,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Lectura permitida para todos los usuarios autenticados
     Route::get('/books', [BookController::class, 'index']);
+    Route::get('/books/recommendations', [BookController::class, 'recommendations']);
     Route::get('/books/{book}', [BookController::class, 'show']);
 
     Route::get('/categories', [CategoryController::class, 'index']);
@@ -51,8 +66,42 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/loans', [LoanController::class, 'index']);
     Route::get('/loans/{loan}', [LoanController::class, 'show']);
 
+    // Rutas para Reseñas
+    Route::get('/books/{book}/reviews', [ReviewController::class, 'index']);
+    Route::post('/books/{book}/reviews', [ReviewController::class, 'store']);
+
+    // Rutas para Reservas
+    Route::get('/my-reservations', [ReservationController::class, 'myReservations']);
+    Route::post('/reservations', [ReservationController::class, 'store']);
+
+    // Perfil y Notificaciones
+    Route::get('/profile', [ProfileController::class, 'getProfileStats']);
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::post('/notifications/{notification}/read', [NotificationController::class, 'markRead']);
+
+    // Multas
+    Route::post('/loans/{loan}/pay', [LoanController::class, 'payFine']);
+
+    // Colecciones
+    Route::apiResource('collections', CollectionController::class);
+    Route::post('/collections/{collection}/books', [CollectionController::class, 'addBook']);
+    Route::delete('/collections/{collection}/books/{bookId}', [CollectionController::class, 'removeBook']);
+
+    // Help Requests
+    Route::get('/help-requests', [HelpRequestController::class, 'index']);
+    Route::post('/help-requests', [HelpRequestController::class, 'store']);
+    Route::get('/help-requests/{helpRequest}', [HelpRequestController::class, 'show']);
+    Route::delete('/help-requests/{helpRequest}', [HelpRequestController::class, 'destroy']);
+    // The update route is moved inside the admin middleware group as per the instruction "with update being admin-only"
+
     // Rutas para administrador
     Route::middleware(IsAdmin::class)->group(function () {
+        Route::get('/admin/stats', [AdminDashboardController::class, 'stats']);
+        
+        // Reportes
+        Route::get('/admin/reports/loans', [ReportController::class, 'exportLoans']);
+        Route::get('/admin/reports/inventory', [ReportController::class, 'exportInventory']);
+        Route::get('/admin/reports/fines', [ReportController::class, 'exportFines']);
         // Books
         Route::post('/books', [BookController::class, 'store']);
         Route::put('/books/{book}', [BookController::class, 'update']);
@@ -74,6 +123,28 @@ Route::middleware('auth:sanctum')->group(function () {
         // Loans
         Route::put('/loans/{loan}', [LoanController::class, 'update']);
         Route::delete('/loans/{loan}', [LoanController::class, 'destroy']);
+
+        // Book Units (Ejemplares)
+        Route::get('/books/{book}/units', [BookUnitController::class, 'index']);
+        Route::post('/books/{book}/units', [BookUnitController::class, 'store']);
+        Route::get('/units/{unit}', [BookUnitController::class, 'show']);
+        Route::delete('/units/{unit}', [BookUnitController::class, 'destroy']);
+
+        // Auditoría
+        Route::get('/activity-logs', [ActivityLogController::class, 'index']);
+
+        // QR Codes
+        Route::get('/books/{book}/qr', [BookQRController::class, 'generate']);
+
+        // Bulk Import
+        Route::post('/admin/books/import', [BookImportController::class, 'import']);
+
+        // Banners
+        Route::get('/admin/banners', [BannerController::class, 'all']);
+        Route::post('/banners', [BannerController::class, 'store']);
+        Route::put('/banners/{banner}', [BannerController::class, 'update']);
+        // Help Requests (Admin)
+        Route::patch('/help-requests/{helpRequest}', [HelpRequestController::class, 'update']);
     });
 });
 

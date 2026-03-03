@@ -8,7 +8,7 @@ class FavoriteService
 {
     public function listFavorites(User $user)
     {
-        return $user->favoriteBooks()->get();
+        return $user->favoriteBooks()->paginate(10);
     }
 
     public function addToFavorites(User $user, int $bookId): void

@@ -1,13 +1,19 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "Biblioteca API",
-        "description": "Documentación de la API de la biblioteca",
+        "title": "Biblioteca API - Enterprise Edition",
+        "description": "Documentación completa y profesional de la API para el sistema de gestión de biblioteca. Incluye módulos de administración avanzada, trazabilidad (Audit Logs), reportes dinámicos y herramientas operativas (QR, Bulk Import).",
         "contact": {
             "email": "soporte@bibliotecaapi.com"
         },
         "version": "1.0.0"
     },
+    "servers": [
+        {
+            "url": "http://my-default-host.com",
+            "description": "Servidor de API Principal"
+        }
+    ],
     "paths": {
         "/api/register": {
             "post": {
@@ -1318,6 +1324,187 @@
                 ]
             }
         },
+        "/api/admin/dashboard/stats": {
+            "get": {
+                "tags": [
+                    "Admin | Dashboard"
+                ],
+                "summary": "Estadísticas globales para el Dashboard",
+                "description": "Retorna indicadores clave (KPIs), tendencias mensuales y distribución de categorías.",
+                "operationId": "c81a716313e4e3f7b436c144b03b3a87",
+                "responses": {
+                    "200": {
+                        "description": "Datos estadísticos cargados con éxito",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "cards": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        },
+                                        "monthlyTrends": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        },
+                                        "categoryDistribution": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/activity-logs": {
+            "get": {
+                "tags": [
+                    "Admin | Audit Logs"
+                ],
+                "summary": "Listado de logs de auditoría",
+                "description": "Retorna el registro histórico de acciones realizadas por los administradores (trazabilidad).",
+                "operationId": "735642cec37d1899bdc375f587063ac7",
+                "responses": {
+                    "200": {
+                        "description": "Lista paginada de logs",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/ActivityLog"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/books/{id}/qr": {
+            "get": {
+                "tags": [
+                    "Admin | Tools"
+                ],
+                "summary": "Generar código QR para un libro",
+                "description": "Genera una etiqueta QR en formato SVG con la información del ejemplar.",
+                "operationId": "7035f2f2a5eddf24be59d65a4e746d0f",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Imagen SVG del código QR"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/books/import": {
+            "post": {
+                "tags": [
+                    "Admin | Tools"
+                ],
+                "summary": "Importación masiva de libros vía CSV",
+                "description": "Permite cargar múltiples libros, creando autores y categorías automáticamente si no existen.",
+                "operationId": "f120314346ca7195e768e10c84bed488",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "file": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Importación exitosa"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/reports/loans": {
+            "get": {
+                "tags": [
+                    "Admin | Tools"
+                ],
+                "summary": "Exportar reporte de préstamos",
+                "description": "Genera documentos en formato PDF o Excel con el historial de préstamos.",
+                "operationId": "2231b3b9118fd8771a2bf8c9f90b2311",
+                "parameters": [
+                    {
+                        "name": "format",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "pdf",
+                                "excel"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Archivo descargable"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "/api/users": {
             "get": {
                 "tags": [
@@ -1493,7 +1680,6 @@
     "components": {
         "schemas": {
             "Book": {
-                "title": "Book",
                 "required": [
                     "id",
                     "title",
@@ -1509,59 +1695,41 @@
                     },
                     "title": {
                         "type": "string",
-                        "example": "El señor de los anillos"
+                        "example": "Cien años de soledad"
                     },
                     "isbn": {
                         "type": "string",
-                        "example": "9788478884453"
+                        "example": "9780307474728"
                     },
                     "year": {
                         "type": "integer",
-                        "example": 1954
+                        "example": 1967
                     },
                     "author_id": {
                         "type": "integer",
-                        "example": 2
+                        "example": 10
                     },
                     "category_id": {
                         "type": "integer",
-                        "example": 3
-                    },
-                    "cover_image": {
-                        "type": "string",
-                        "example": "covers/imagen.jpg",
-                        "nullable": true
+                        "example": 5
                     },
                     "cover_image_url": {
                         "type": "string",
-                        "example": "http://tu-dominio/storage/covers/imagen.jpg",
-                        "nullable": true
-                    },
-                    "synopsis": {
-                        "type": "string",
-                        "example": "Una historia fantástica...",
-                        "nullable": true
-                    },
-                    "pages": {
-                        "type": "integer",
-                        "example": 423,
-                        "nullable": true
-                    },
-                    "publisher": {
-                        "type": "string",
-                        "example": "Editorial XYZ",
-                        "nullable": true
+                        "format": "uri",
+                        "example": "http://api.test/storage/covers/1.jpg"
                     },
                     "stock": {
                         "type": "integer",
-                        "example": 10,
+                        "example": 15
+                    },
+                    "synopsis": {
+                        "type": "string",
                         "nullable": true
                     }
                 },
                 "type": "object"
             },
-            "Category": {
-                "title": "Category",
+            "Author": {
                 "required": [
                     "id",
                     "name"
@@ -1573,18 +1741,37 @@
                     },
                     "name": {
                         "type": "string",
-                        "example": "Ficción"
+                        "example": "Gabriel García Márquez"
                     },
-                    "description": {
+                    "country": {
                         "type": "string",
-                        "example": "Libros de ficción y narrativa",
+                        "example": "Colombia"
+                    },
+                    "bio": {
+                        "type": "string",
                         "nullable": true
                     }
                 },
                 "type": "object"
             },
+            "Category": {
+                "required": [
+                    "id",
+                    "name"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Realismo Mágico"
+                    }
+                },
+                "type": "object"
+            },
             "Loan": {
-                "title": "Loan",
                 "required": [
                     "id",
                     "user_id",
@@ -1597,62 +1784,53 @@
                         "example": 5
                     },
                     "user_id": {
-                        "type": "integer",
-                        "example": 3
+                        "type": "integer"
                     },
                     "book_id": {
-                        "type": "integer",
-                        "example": 11
+                        "type": "integer"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "pendiente",
+                            "aprobado",
+                            "devuelto"
+                        ]
                     },
                     "loan_date": {
                         "type": "string",
-                        "format": "date",
-                        "example": "2025-06-01",
-                        "nullable": true
+                        "format": "date"
                     },
                     "return_date": {
                         "type": "string",
                         "format": "date",
-                        "example": "2025-06-15",
                         "nullable": true
-                    },
-                    "status": {
-                        "type": "string",
-                        "example": "aprobado"
                     }
                 },
                 "type": "object"
             },
-            "Author": {
-                "title": "Author",
-                "required": [
-                    "id",
-                    "name"
-                ],
+            "ActivityLog": {
                 "properties": {
                     "id": {
                         "type": "integer",
                         "example": 1
                     },
-                    "name": {
+                    "action": {
                         "type": "string",
-                        "example": "J.R.R. Tolkien"
+                        "example": "Creado"
                     },
-                    "country": {
+                    "model_type": {
                         "type": "string",
-                        "example": "United Kingdom",
-                        "nullable": true
+                        "example": "Libro"
                     },
-                    "bio": {
+                    "description": {
                         "type": "string",
-                        "example": "British writer, poet, philologist",
-                        "nullable": true
+                        "example": "Título: El Quijote"
+                    },
+                    "user": {
+                        "$ref": "#/components/schemas/User"
                     },
                     "created_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "updated_at": {
                         "type": "string",
                         "format": "date-time"
                     }
@@ -1660,13 +1838,6 @@
                 "type": "object"
             },
             "User": {
-                "title": "User",
-                "required": [
-                    "id",
-                    "name",
-                    "email",
-                    "role"
-                ],
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -1674,23 +1845,15 @@
                     },
                     "name": {
                         "type": "string",
-                        "example": "Juan Pérez"
+                        "example": "Admin Principal"
                     },
                     "email": {
                         "type": "string",
-                        "example": "juan@email.com"
+                        "example": "admin@biblioteca.com"
                     },
                     "role": {
                         "type": "string",
                         "example": "admin"
-                    },
-                    "created_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "updated_at": {
-                        "type": "string",
-                        "format": "date-time"
                     }
                 },
                 "type": "object"
@@ -1705,6 +1868,18 @@
         {
             "name": "Favorite",
             "description": "Operations to manage users' favorite books"
+        },
+        {
+            "name": "Admin | Dashboard",
+            "description": "Estadísticas avanzadas y analíticas"
+        },
+        {
+            "name": "Admin | Audit Logs",
+            "description": "Trazabilidad y auditoría de acciones"
+        },
+        {
+            "name": "Admin | Tools",
+            "description": "Herramientas operativas (QR, Import)"
         },
         {
             "name": "Users",

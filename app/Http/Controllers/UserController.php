@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\UpdateUserRequest;
 use App\Http\Service\UserService;
+use App\Helpers\LogHelper;
 
 /**
  * @OA\Tag(
@@ -38,13 +39,13 @@ class UserController extends Controller
      *     @OA\Response(response=403, description="Unauthorized")
      * )
      */
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
         if ($user->role !== 'admin') {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
-        return $this->service->list();
+        return $this->service->list($request->has('all'));
     }
 
     /**
@@ -108,7 +109,9 @@ class UserController extends Controller
      */
     public function update(UpdateUserRequest $request, $id)
     {
-         return $this->service->update($id, $request->validated());
+         $user = $this->service->update($id, $request->validated());
+         LogHelper::log('Actualizado', 'Usuario', $user->id, "Nombre: {$user->name}, Email: {$user->email}");
+         return $user;
     }
 
     /**
@@ -133,6 +136,10 @@ class UserController extends Controller
         $user = Auth::user();
         if ($user->role !== 'admin') {
             return response()->json(['message' => 'Unauthorized'], 403);
+        }
+        $deletedUser = User::find($id);
+        if ($deletedUser) {
+            LogHelper::log('Eliminado', 'Usuario', $deletedUser->id, "Nombre: {$deletedUser->name}");
         }
         $this->service->delete($id);
         return response()->noContent();
