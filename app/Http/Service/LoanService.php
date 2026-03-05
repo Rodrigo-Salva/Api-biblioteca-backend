@@ -170,6 +170,36 @@ class LoanService
         return $loan;
     }
 
+    public function renew(Loan $loan)
+    {
+        // 1. Verificar que el préstamo esté activo
+        if ($loan->return_date) {
+            throw new \Exception('No se puede renovar un préstamo ya devuelto.');
+        }
+
+        // 2. Verificar que no haya reservas pendientes para este libro
+        $hasReservations = Reservation::where('book_id', $loan->book_id)
+            ->whereIn('status', ['pendiente', 'disponible'])
+            ->exists();
+
+        if ($hasReservations) {
+            throw new \Exception('No se puede renovar porque hay otros usuarios esperando este libro.');
+        }
+
+        // 3. Verificar límite de renovaciones (ej. máximo 1 vez)
+        if ($loan->renewal_count >= 1) {
+            throw new \Exception('Este préstamo ya ha sido renovado el máximo de veces permitido.');
+        }
+
+        // 4. Actualizar fecha de vencimiento (añadir 7 días)
+        $loan->update([
+            'due_date' => Carbon::parse($loan->due_date)->addDays(7),
+            'renewal_count' => ($loan->renewal_count ?? 0) + 1
+        ]);
+
+        return $loan->load('book');
+    }
+
     public function getOverdueLoans()
     {
         return Loan::where('status', 'aprobado')
