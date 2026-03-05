@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Reservation;
+use App\Models\Book;
 use App\Http\Requests\StoreReservationRequest;
 use App\Http\Requests\UpdateReservationRequest;
 use App\Http\Service\ReservationService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ReservationController extends Controller
 {
@@ -48,6 +50,11 @@ class ReservationController extends Controller
         );
 
         return response()->json($reservations);
+    }
+
+    public function myReservations()
+    {
+        return response()->json($this->service->getReservationsByUser(Auth::user()));
     }
 
     /**

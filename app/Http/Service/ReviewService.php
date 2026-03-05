@@ -42,6 +42,16 @@ class ReviewService
         return $review->load('user:id,name');
     }
 
+    public function createReview(array $data)
+    {
+        return Review::create($data);
+    }
+
+    public function getReviewsByBook(Book $book)
+    {
+        return Review::with('user:id,name')->where('book_id', $book->id)->latest()->get();
+    }
+
     /**
      * Actualizar una reseña
      */

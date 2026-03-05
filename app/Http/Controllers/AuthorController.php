@@ -24,9 +24,12 @@ class AuthorController extends Controller
      *     )
      * )
      */
-    public function index()
+    public function index(Request $request)
     {
-        return Author::all();
+        if ($request->has('all')) {
+            return Author::all();
+        }
+        return Author::paginate(10);
     }
 
     /**

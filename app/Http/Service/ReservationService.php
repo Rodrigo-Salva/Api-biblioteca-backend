@@ -25,12 +25,21 @@ class ReservationService
         return $query->orderBy('reserved_at', 'desc')->get();
     }
 
+    public function getReservationsByUser($user)
+    {
+        return $this->listByUser($user);
+    }
+
     /**
      * Crear una reserva
      */
     public function create(User $user, int $bookId)
     {
         $book = Book::findOrFail($bookId);
+
+        if ($book->stock > 0) {
+            throw new \Exception('No puedes reservar un libro que tiene stock disponible.');
+        }
 
         // Verificar si ya tiene una reserva activa de este libro
         if ($user->hasActiveReservation($bookId)) {
@@ -56,15 +65,21 @@ class ReservationService
         ]);
 
         // Calcular posición en la cola
-        $position = Reservation::where('book_id', $bookId)
-            ->where('status', 'pendiente')
-            ->where('reserved_at', '<=', $reservation->reserved_at)
-            ->count();
+        $position = $this->getQueuePosition($reservation);
 
         // Enviar notificación de confirmación
-        $user->notify(new ReservationConfirmedNotification($reservation->load('book'), $position));
+        try {
+            $user->notify(new ReservationConfirmedNotification($reservation->load('book'), $position));
+        } catch (\Exception $e) {
+            // Log or ignore
+        }
 
         return $reservation->load('book');
+    }
+
+    public function createReservation($user, int $bookId)
+    {
+        return $this->create($user, $bookId);
     }
 
     /**
@@ -79,7 +94,11 @@ class ReservationService
         $reservation->cancel();
 
         // Enviar notificación
-        $reservation->user->notify(new ReservationCancelledNotification($reservation->load('book')));
+        try {
+            $reservation->user->notify(new ReservationCancelledNotification($reservation->load('book')));
+        } catch (\Exception $e) {
+            // Ignore
+        }
 
         // Notificar al siguiente en la cola si el libro está disponible
         $this->notifyNextInQueue($reservation->book_id);
@@ -107,9 +126,13 @@ class ReservationService
                 $nextReservation->markAsAvailable();
 
                 // Notificar al usuario
-                $nextReservation->user->notify(
-                    new BookAvailableNotification($nextReservation->load('book'))
-                );
+                try {
+                    $nextReservation->user->notify(
+                        new BookAvailableNotification($nextReservation->load('book'))
+                    );
+                } catch (\Exception $e) {
+                    // Ignore
+                }
 
                 return $nextReservation;
             }
@@ -170,7 +193,11 @@ class ReservationService
         $reservation->update(['status' => $status]);
 
         if ($status === 'cancelada') {
-            $reservation->user->notify(new ReservationCancelledNotification($reservation->load('book')));
+            try {
+                $reservation->user->notify(new ReservationCancelledNotification($reservation->load('book')));
+            } catch (\Exception $e) {
+                // Ignore
+            }
         }
 
         return $reservation->load(['user', 'book']);

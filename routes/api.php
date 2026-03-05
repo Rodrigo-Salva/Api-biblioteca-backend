@@ -10,9 +10,20 @@ use App\Http\Controllers\LoanController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\ReviewController;
-use App\Http\Controllers\FineController;
-use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ReservationController;
+use App\Http\Controllers\AdminDashboardController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\BookUnitController;
+use App\Http\Controllers\CollectionController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\BookQRController;
+use App\Http\Controllers\BookImportController;
+use App\Http\Controllers\BannerController;
+use App\Http\Controllers\HelpRequestController;
+use App\Http\Controllers\FineController;
+
 use Illuminate\Http\Request;
 
 /*
@@ -24,6 +35,7 @@ use Illuminate\Http\Request;
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/books/available', [BookController::class, 'available']);
+Route::get('/banners', [BannerController::class, 'index']);
 
 /*
 |--------------------------------------------------------------------------
@@ -47,6 +59,7 @@ Route::middleware('auth:sanctum')->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::get('/books', [BookController::class, 'index']);
+    Route::get('/books/recommendations', [BookController::class, 'recommendations']);
     Route::get('/books/{book}', [BookController::class, 'show']);
 
     /*
@@ -67,21 +80,23 @@ Route::middleware('auth:sanctum')->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | Préstamos - Usuario
-    |--------------------------------------------------------------------------
-    */
-    Route::get('/loans', [LoanController::class, 'index']);
-    Route::get('/loans/{loan}', [LoanController::class, 'show']);
-    Route::post('/loans', [LoanController::class, 'store']);
-
-    /*
-    |--------------------------------------------------------------------------
     | Favoritos - Usuario
     |--------------------------------------------------------------------------
     */
     Route::get('/favorites', [FavoriteController::class, 'index']);
     Route::post('/favorites', [FavoriteController::class, 'store']);
     Route::delete('/favorites/{book_id}', [FavoriteController::class, 'destroy']);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Préstamos - Usuario
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/loans', [LoanController::class, 'index']);
+    Route::get('/loans/{loan}', [LoanController::class, 'show']);
+    Route::post('/loans', [LoanController::class, 'store']);
+    Route::post('/loans/{loan}/pay', [LoanController::class, 'payFine']);
+    Route::post('/loans/{loan}/renew', [LoanController::class, 'renew']);
 
     /*
     |--------------------------------------------------------------------------
@@ -121,8 +136,24 @@ Route::middleware('auth:sanctum')->group(function () {
     */
     Route::get('/reservations', [ReservationController::class, 'index']);
     Route::post('/reservations', [ReservationController::class, 'store']);
+    // Alias for compatibility if needed
+    Route::get('/my-reservations', [ReservationController::class, 'myReservations']);
     Route::get('/reservations/{reservation}', [ReservationController::class, 'show']);
     Route::delete('/reservations/{reservation}', [ReservationController::class, 'destroy']);
+
+    // Perfil
+    Route::get('/profile', [ProfileController::class, 'getProfileStats']);
+
+    // Colecciones
+    Route::apiResource('collections', CollectionController::class);
+    Route::post('/collections/{collection}/books', [CollectionController::class, 'addBook']);
+    Route::delete('/collections/{collection}/books/{bookId}', [CollectionController::class, 'removeBook']);
+
+    // Help Requests
+    Route::get('/help-requests', [HelpRequestController::class, 'index']);
+    Route::post('/help-requests', [HelpRequestController::class, 'store']);
+    Route::get('/help-requests/{helpRequest}', [HelpRequestController::class, 'show']);
+    Route::delete('/help-requests/{helpRequest}', [HelpRequestController::class, 'destroy']);
 
     /*
     |--------------------------------------------------------------------------
@@ -131,6 +162,13 @@ Route::middleware('auth:sanctum')->group(function () {
     */
     Route::middleware(IsAdmin::class)->group(function () {
         
+        Route::get('/admin/stats', [AdminDashboardController::class, 'stats']);
+
+        // Reportes
+        Route::get('/admin/reports/loans', [ReportController::class, 'exportLoans']);
+        Route::get('/admin/reports/inventory', [ReportController::class, 'exportInventory']);
+        Route::get('/admin/reports/fines', [ReportController::class, 'exportFines']);
+
         // Usuarios (Admin)
         Route::apiResource('users', UserController::class)->except(['store']);
 
@@ -168,5 +206,29 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/admin/reservations/{reservation}', [ReservationController::class, 'update']);
         Route::delete('/admin/reservations/{reservation}', [ReservationController::class, 'adminDestroy']);
         Route::get('/admin/reservations/statistics', [ReservationController::class, 'statistics']);
+
+        // Book Units (Ejemplares)
+        Route::get('/books/{book}/units', [BookUnitController::class, 'index']);
+        Route::post('/books/{book}/units', [BookUnitController::class, 'store']);
+        Route::get('/units/{unit}', [BookUnitController::class, 'show']);
+        Route::delete('/units/{unit}', [BookUnitController::class, 'destroy']);
+
+        // Auditoría
+        Route::get('/activity-logs', [ActivityLogController::class, 'index']);
+
+        // QR Codes
+        Route::get('/books/{book}/qr', [BookQRController::class, 'generate']);
+
+        // Bulk Import
+        Route::post('/admin/books/import', [BookImportController::class, 'import']);
+        Route::get('/admin/books/fetch-isbn/{isbn}', [BookController::class, 'fetchByIsbn']);
+
+        // Banners
+        Route::get('/admin/banners', [BannerController::class, 'all']);
+        Route::post('/banners', [BannerController::class, 'store']);
+        Route::put('/banners/{banner}', [BannerController::class, 'update']);
+
+        // Help Requests (Admin)
+        Route::patch('/help-requests/{helpRequest}', [HelpRequestController::class, 'update']);
     });
 });

@@ -6,9 +6,9 @@ use App\Models\User;
 
 class UserService
 {
-    public function list()
+    public function list($all = false)
     {
-        return User::all();
+        return $all ? User::all() : User::paginate(10);
     }
 
     public function find(int $id)

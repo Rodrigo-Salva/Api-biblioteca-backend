@@ -1,22 +1,17 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "API Biblioteca Virtual",
-        "description": "API RESTful completa para gestión de biblioteca virtual",
+        "title": "Biblioteca API - Enterprise Edition",
+        "description": "Documentación completa y profesional de la API para el sistema de gestión de biblioteca. Incluye módulos de administración avanzada, trazabilidad (Audit Logs), reportes dinámicos y herramientas operativas (QR, Bulk Import).",
         "contact": {
-            "name": "Soporte Técnico",
-            "email": "soporte@biblioteca.com"
+            "email": "soporte@bibliotecaapi.com"
         },
         "version": "1.0.0"
     },
     "servers": [
         {
-            "url": "http://127.0.0.1:8000",
-            "description": "Servidor Local"
-        },
-        {
-            "url": "http://localhost:8000",
-            "description": "Servidor Alternativo"
+            "url": "http://my-default-host.com",
+            "description": "Servidor de API Principal"
         }
     ],
     "paths": {
@@ -807,30 +802,6 @@
                         "sanctum": []
                     }
                 ]
-            }
-        },
-        "/api/books/available": {
-            "get": {
-                "tags": [
-                    "Books"
-                ],
-                "summary": "List books with stock available",
-                "operationId": "d5cf66000c73ee47c7a8d0e5fea9eb9f",
-                "responses": {
-                    "200": {
-                        "description": "Successful operation",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/Book"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
             }
         },
         "/api/categories": {
@@ -1917,7 +1888,7 @@
                     "Notifications"
                 ],
                 "summary": "Mark notification as read",
-                "operationId": "ccc13a8ee59dfc08e9b1f80e075ebfc1",
+                "operationId": "d3c26645cf40210e054d72089f8097a5",
                 "parameters": [
                     {
                         "name": "id",
@@ -2876,6 +2847,168 @@
     },
     "components": {
         "schemas": {
+            "Book": {
+                "required": [
+                    "id",
+                    "title",
+                    "isbn",
+                    "year",
+                    "author_id",
+                    "category_id"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "title": {
+                        "type": "string",
+                        "example": "Cien años de soledad"
+                    },
+                    "isbn": {
+                        "type": "string",
+                        "example": "9780307474728"
+                    },
+                    "year": {
+                        "type": "integer",
+                        "example": 1967
+                    },
+                    "author_id": {
+                        "type": "integer",
+                        "example": 10
+                    },
+                    "category_id": {
+                        "type": "integer",
+                        "example": 5
+                    },
+                    "cover_image_url": {
+                        "type": "string",
+                        "format": "uri",
+                        "example": "http://api.test/storage/covers/1.jpg"
+                    },
+                    "stock": {
+                        "type": "integer",
+                        "example": 15
+                    },
+                    "synopsis": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "Author": {
+                "required": [
+                    "id",
+                    "name"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Gabriel García Márquez"
+                    },
+                    "country": {
+                        "type": "string",
+                        "example": "Colombia"
+                    },
+                    "bio": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "Category": {
+                "required": [
+                    "id",
+                    "name"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Realismo Mágico"
+                    }
+                },
+                "type": "object"
+            },
+            "Loan": {
+                "required": [
+                    "id",
+                    "user_id",
+                    "book_id",
+                    "status"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 5
+                    },
+                    "user_id": {
+                        "type": "integer"
+                    },
+                    "book_id": {
+                        "type": "integer"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "pendiente",
+                            "aprobado",
+                            "devuelto"
+                        ]
+                    },
+                    "loan_date": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "due_date": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "return_date": {
+                        "type": "string",
+                        "format": "date",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "ActivityLog": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "action": {
+                        "type": "string",
+                        "example": "Creado"
+                    },
+                    "model_type": {
+                        "type": "string",
+                        "example": "Libro"
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "Título: El Quijote"
+                    },
+                    "user": {
+                        "$ref": "#/components/schemas/User"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
             "User": {
                 "properties": {
                     "id": {
@@ -2884,203 +3017,15 @@
                     },
                     "name": {
                         "type": "string",
-                        "example": "Juan Pérez"
+                        "example": "Admin Principal"
                     },
                     "email": {
                         "type": "string",
-                        "example": "juan@example.com"
+                        "example": "admin@biblioteca.com"
                     },
                     "role": {
                         "type": "string",
-                        "example": "user"
-                    },
-                    "created_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "updated_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    }
-                },
-                "type": "object"
-            },
-            "Author": {
-                "properties": {
-                    "id": {
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "name": {
-                        "type": "string",
-                        "example": "Robert C. Martin"
-                    },
-                    "country": {
-                        "type": "string",
-                        "example": "USA"
-                    },
-                    "bio": {
-                        "type": "string",
-                        "example": "Autor de Clean Code"
-                    },
-                    "created_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "updated_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    }
-                },
-                "type": "object"
-            },
-            "Category": {
-                "properties": {
-                    "id": {
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "name": {
-                        "type": "string",
-                        "example": "Programación"
-                    },
-                    "description": {
-                        "type": "string",
-                        "example": "Libros de programación"
-                    },
-                    "created_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "updated_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    }
-                },
-                "type": "object"
-            },
-            "Book": {
-                "properties": {
-                    "id": {
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "title": {
-                        "type": "string",
-                        "example": "Clean Code"
-                    },
-                    "author_id": {
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "category_id": {
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "isbn": {
-                        "type": "string",
-                        "example": "978-0132350884"
-                    },
-                    "published_year": {
-                        "type": "integer",
-                        "example": 2008
-                    },
-                    "stock": {
-                        "type": "integer",
-                        "example": 5
-                    },
-                    "description": {
-                        "type": "string",
-                        "example": "A Handbook of Agile Software Craftsmanship"
-                    },
-                    "cover_image": {
-                        "type": "string",
-                        "example": "https://example.com/cover.jpg"
-                    },
-                    "created_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "updated_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    }
-                },
-                "type": "object"
-            },
-            "Loan": {
-                "properties": {
-                    "id": {
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "user_id": {
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "book_id": {
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "loan_date": {
-                        "type": "string",
-                        "format": "date",
-                        "example": "2026-01-25"
-                    },
-                    "due_date": {
-                        "type": "string",
-                        "format": "date",
-                        "example": "2026-02-09"
-                    },
-                    "return_date": {
-                        "type": "string",
-                        "format": "date",
-                        "nullable": true
-                    },
-                    "status": {
-                        "type": "string",
-                        "example": "aprobado"
-                    },
-                    "created_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "updated_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    }
-                },
-                "type": "object"
-            },
-            "Review": {
-                "properties": {
-                    "id": {
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "user_id": {
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "book_id": {
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "rating": {
-                        "type": "integer",
-                        "example": 5
-                    },
-                    "comment": {
-                        "type": "string",
-                        "example": "Excelente libro"
-                    },
-                    "created_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "updated_at": {
-                        "type": "string",
-                        "format": "date-time"
+                        "example": "admin"
                     }
                 },
                 "type": "object"
@@ -3170,6 +3115,39 @@
                     }
                 },
                 "type": "object"
+            },
+            "Review": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "user_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "book_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "rating": {
+                        "type": "integer",
+                        "example": 5
+                    },
+                    "comment": {
+                        "type": "string",
+                        "example": "Excelente libro"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
             }
         },
         "securitySchemes": {
@@ -3184,27 +3162,11 @@
     "tags": [
         {
             "name": "Authentication",
-            "description": "Autenticación"
+            "description": "Endpoints para registro, login y logout"
         },
         {
-            "name": "Books",
-            "description": "Libros"
-        },
-        {
-            "name": "Categories",
-            "description": "Categorías"
-        },
-        {
-            "name": "Authors",
-            "description": "Autores"
-        },
-        {
-            "name": "Users",
-            "description": "Operations for user management"
-        },
-        {
-            "name": "Loans",
-            "description": "Préstamos"
+            "name": "Reservations",
+            "description": "Reservas"
         },
         {
             "name": "Reviews",
@@ -3215,16 +3177,32 @@
             "description": "Multas"
         },
         {
-            "name": "Notifications",
-            "description": "Notificaciones"
-        },
-        {
-            "name": "Reservations",
-            "description": "Reservas"
-        },
-        {
             "name": "Favorite",
             "description": "Operations to manage users' favorite books"
+        },
+        {
+            "name": "Users",
+            "description": "Operations for user management"
+        },
+        {
+            "name": "Authors",
+            "description": "Authors"
+        },
+        {
+            "name": "Books",
+            "description": "Books"
+        },
+        {
+            "name": "Categories",
+            "description": "Categories"
+        },
+        {
+            "name": "Loans",
+            "description": "Loans"
+        },
+        {
+            "name": "Notifications",
+            "description": "Notifications"
         }
     ]
 }

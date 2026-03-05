@@ -9,6 +9,7 @@ use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 use App\Models\Book;
 use App\Models\Loan;
+use App\Models\Collection;
 
 /**
  * @mixin IdeHelperUser
@@ -42,6 +43,21 @@ class User extends Authenticatable
         return $this->hasMany(Loan::class);
     }
 
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    public function reservations()
+    {
+        return $this->hasMany(Reservation::class);
+    }
+
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
+
     /**
      * Libros favoritos del usuario.
      *
@@ -52,6 +68,11 @@ class User extends Authenticatable
         return $this->belongsToMany(Book::class, 'favorites', 'user_id', 'book_id');
     }
 
+    public function collections()
+    {
+        return $this->hasMany(Collection::class);
+    }
+
     public function fines()
     {
         return $this->hasMany(Fine::class);
@@ -60,11 +81,6 @@ class User extends Authenticatable
     public function hasPendingFines()
     {
         return $this->fines()->where('status', 'pendiente')->exists();
-    }
-
-    public function reservations()
-    {
-        return $this->hasMany(Reservation::class);
     }
 
     public function hasActiveReservation($bookId)

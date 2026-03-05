@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreLoanRequest;
 use App\Http\Requests\UpdateLoanRequest;
 use App\Http\Service\LoanService;
+use App\Helpers\LogHelper;
 
 class LoanController extends Controller
 {
@@ -67,6 +68,8 @@ class LoanController extends Controller
 
         try {
             $loan = $this->service->createLoan($user, $request->validated());
+
+            LogHelper::log('Creado', 'Préstamo', $loan->id, "Usuario: {$loan->user->name}, Libro: {$loan->book->title}");
 
             return response()->json([
                 'message' => 'Préstamo aprobado automáticamente.',
@@ -146,6 +149,8 @@ class LoanController extends Controller
             $loan->book->incrementarStock();
         }
 
+        LogHelper::log('Actualizado', 'Préstamo', $loan->id, "Estado: {$loan->status}");
+
         return $loan;
     }
 
@@ -172,6 +177,7 @@ class LoanController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
+        LogHelper::log('Eliminado', 'Préstamo', $loan->id, "ID Préstamo: {$loan->id}");
         $loan->delete();
         return response()->noContent();
     }
@@ -220,6 +226,8 @@ class LoanController extends Controller
             // Verificar si se generó una multa
             $fine = $loan->fine;
             
+            LogHelper::log('Devuelto', 'Préstamo', $loan->id, "Libro devuelto por admin");
+
             return response()->json([
                 'message' => 'Préstamo marcado como devuelto.',
                 'fine_generated' => $fine !== null,
@@ -227,6 +235,32 @@ class LoanController extends Controller
             ]);
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], 404);
+        }
+    }
+
+    public function payFine(Loan $loan)
+    {
+        try {
+            $updatedLoan = $this->service->payFine($loan);
+            return response()->json($updatedLoan);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 400);
+        }
+    }
+
+    public function renew(Loan $loan)
+    {
+        $user = Auth::user();
+        if ($user->role !== 'admin' && $loan->user_id !== $user->id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        try {
+            $updatedLoan = $this->service->renew($loan);
+            LogHelper::log('Renovado', 'Préstamo', $loan->id, "Nueva fecha: {$updatedLoan->due_date}");
+            return response()->json($updatedLoan);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 400);
         }
     }
 

@@ -28,6 +28,8 @@ class StoreBookRequest extends FormRequest
             'author_id' => 'required|exists:authors,id',
             'category_id' => 'required|exists:categories,id',
             'cover_image' => 'nullable|image|max:2048',
+            'digital_file' => 'nullable|mimes:pdf,epub|max:10240',
+            'is_digital' => 'nullable|boolean',
             'synopsis' => 'nullable|string',
             'pages' => 'nullable|integer',
             'publisher' => 'nullable|string',

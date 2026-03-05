@@ -24,10 +24,12 @@ class Book extends Model
         'pages',
         'publisher',
         'stock',
-        'cover_image'
+        'cover_image',
+        'digital_file_path',
+        'is_digital'
     ];
 
-    protected $appends = ['cover_image_url'];
+    protected $appends = ['cover_image_url', 'digital_file_url'];
 
     public function author()
     {
@@ -39,14 +41,24 @@ class Book extends Model
         return $this->belongsTo(Category::class);
     }
 
+    public function loans()
+    {
+        return $this->hasMany(Loan::class);
+    }
+
     public function reviews()
     {
         return $this->hasMany(Review::class);
     }
 
-    public function loans()
+    public function reservations()
     {
-        return $this->hasMany(Loan::class);
+        return $this->hasMany(Reservation::class);
+    }
+
+    public function units()
+    {
+        return $this->hasMany(BookUnit::class);
     }
 
     public function favoredBy()
@@ -75,6 +87,11 @@ class Book extends Model
         return $this->cover_image ? asset('storage/' . $this->cover_image) : null;
     }
 
+    public function getDigitalFileUrlAttribute()
+    {
+        return $this->digital_file_path ? asset('storage/' . $this->digital_file_path) : null;
+    }
+
     public function averageRating()
     {
         return round($this->reviews()->avg('rating'), 2);
@@ -83,11 +100,6 @@ class Book extends Model
     public function reviewsCount()
     {
         return $this->reviews()->count();
-    }
-
-    public function reservations()
-    {
-        return $this->hasMany(Reservation::class);
     }
 
     public function activeReservations()

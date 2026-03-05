@@ -3,9 +3,18 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Http\Service\NotificationService;
+use App\Models\Notification;
 
 class NotificationController extends Controller
 {
+    protected $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
+
     /**
      * @OA\Get(
      *     path="/api/notifications",
@@ -70,6 +79,11 @@ class NotificationController extends Controller
      *     @OA\Response(response=404, description="Notification not found")
      * )
      */
+    public function markRead(Notification $notification)
+    {
+        return response()->json($this->notificationService->markAsRead($notification));
+    }
+
     public function markAsRead($id)
     {
         $notification = auth()->user()->notifications()->findOrFail($id);
@@ -95,7 +109,7 @@ class NotificationController extends Controller
      */
     public function markAllAsRead()
     {
-        auth()->user()->unreadNotifications->markAsRead();
+        auth()->user()->unreadNotifications->each->markAsRead();
 
         return response()->json(['message' => 'Todas las notificaciones marcadas como leídas']);
     }

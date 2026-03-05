@@ -21,7 +21,8 @@ class UpdateBookRequest extends FormRequest
      */
     public function rules(): array
     {
-        $bookId = $this->route('book')->id;
+        $book = $this->route('book');
+        $bookId = is_object($book) ? $book->id : $book;
 
         return [
             'title' => 'sometimes|string',
@@ -30,6 +31,8 @@ class UpdateBookRequest extends FormRequest
             'author_id' => 'sometimes|exists:authors,id',
             'category_id' => 'sometimes|exists:categories,id',
             'cover_image' => 'nullable|image|max:2048',
+            'digital_file' => 'nullable|mimes:pdf,epub|max:10240',
+            'is_digital' => 'nullable|boolean',
             'synopsis' => 'nullable|string',
             'pages' => 'nullable|integer',
             'publisher' => 'nullable|string',
