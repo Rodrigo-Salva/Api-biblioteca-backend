@@ -96,6 +96,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/loans/{loan}', [LoanController::class, 'show']);
     Route::post('/loans', [LoanController::class, 'store']);
     Route::post('/loans/{loan}/pay', [LoanController::class, 'payFine']);
+    Route::post('/loans/{loan}/renew', [LoanController::class, 'renew']);
 
     /*
     |--------------------------------------------------------------------------
@@ -220,6 +221,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Bulk Import
         Route::post('/admin/books/import', [BookImportController::class, 'import']);
+        Route::get('/admin/books/fetch-isbn/{isbn}', [BookController::class, 'fetchByIsbn']);
 
         // Banners
         Route::get('/admin/banners', [BannerController::class, 'all']);

@@ -13,10 +13,12 @@ use App\Helpers\LogHelper;
 class BookController extends Controller
 {
     protected $bookService;
+    protected $isbnService;
 
-    public function __construct(ServiceBookService $bookService)
+    public function __construct(ServiceBookService $bookService, \App\Http\Service\ISBNMetadataService $isbnService)
     {
         $this->bookService = $bookService;
+        $this->isbnService = $isbnService;
     }
 
     /**
@@ -157,7 +159,11 @@ class BookController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        $book = $this->bookService->create($request->validated(), $request->file('cover_image'));
+        $book = $this->bookService->create(
+            $request->validated(), 
+            $request->file('cover_image'),
+            $request->file('digital_file')
+        );
         LogHelper::log('Creado', 'Libro', $book->id, "Título: {$book->title}");
         return response()->json($book, 201);
     }
@@ -223,7 +229,12 @@ class BookController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        $book = $this->bookService->update($book, $request->validated(), $request->file('cover_image'));
+        $book = $this->bookService->update(
+            $book, 
+            $request->validated(), 
+            $request->file('cover_image'),
+            $request->file('digital_file')
+        );
         LogHelper::log('Actualizado', 'Libro', $book->id, "Título: {$book->title}");
         return response()->json($book);
     }
@@ -268,5 +279,20 @@ class BookController extends Controller
             return response()->json([]);
         }
         return response()->json($this->bookService->getRecommendations(\Illuminate\Support\Facades\Auth::user()));
+    }
+
+    public function fetchByIsbn($isbn)
+    {
+        if (!Auth::check() || Auth::user()->role !== 'admin') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $data = $this->isbnService->fetchByIsbn($isbn);
+        
+        if (!$data) {
+            return response()->json(['message' => 'Libro no encontrado'], 404);
+        }
+
+        return response()->json($data);
     }
 }

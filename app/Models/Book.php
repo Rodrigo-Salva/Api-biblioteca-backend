@@ -24,10 +24,12 @@ class Book extends Model
         'pages',
         'publisher',
         'stock',
-        'cover_image'
+        'cover_image',
+        'digital_file_path',
+        'is_digital'
     ];
 
-    protected $appends = ['cover_image_url'];
+    protected $appends = ['cover_image_url', 'digital_file_url'];
 
     public function author()
     {
@@ -83,6 +85,11 @@ class Book extends Model
     public function getCoverImageUrlAttribute()
     {
         return $this->cover_image ? asset('storage/' . $this->cover_image) : null;
+    }
+
+    public function getDigitalFileUrlAttribute()
+    {
+        return $this->digital_file_path ? asset('storage/' . $this->digital_file_path) : null;
     }
 
     public function averageRating()

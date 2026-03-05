@@ -248,6 +248,22 @@ class LoanController extends Controller
         }
     }
 
+    public function renew(Loan $loan)
+    {
+        $user = Auth::user();
+        if ($user->role !== 'admin' && $loan->user_id !== $user->id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        try {
+            $updatedLoan = $this->service->renew($loan);
+            LogHelper::log('Renovado', 'Préstamo', $loan->id, "Nueva fecha: {$updatedLoan->due_date}");
+            return response()->json($updatedLoan);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 400);
+        }
+    }
+
     /**
      * @OA\Get(
      *     path="/api/loans/overdue",
