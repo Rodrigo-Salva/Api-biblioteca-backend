@@ -109,16 +109,21 @@ class BookService
         return $this->list($filters);
     }
 
-    public function create(array $data, $coverImageFile = null): Book
+    public function create(array $data, $coverImageFile = null, $digitalFile = null): Book
     {
         if ($coverImageFile) {
             $data['cover_image'] = $coverImageFile->store('covers', 'public');
         }
 
+        if ($digitalFile) {
+            $data['digital_file_path'] = $digitalFile->store('books/digital', 'public');
+            $data['is_digital'] = true;
+        }
+
         return Book::create($data);
     }
 
-    public function update(Book $book, array $data, $coverImageFile = null): Book
+    public function update(Book $book, array $data, $coverImageFile = null, $digitalFile = null): Book
     {
         if ($coverImageFile) {
             if ($book->cover_image) {
@@ -126,6 +131,15 @@ class BookService
             }
 
             $data['cover_image'] = $coverImageFile->store('covers', 'public');
+        }
+
+        if ($digitalFile) {
+            if ($book->digital_file_path) {
+                Storage::disk('public')->delete($book->digital_file_path);
+            }
+
+            $data['digital_file_path'] = $digitalFile->store('books/digital', 'public');
+            $data['is_digital'] = true;
         }
 
         $book->update($data);
@@ -136,6 +150,10 @@ class BookService
     {
         if ($book->cover_image) {
             Storage::disk('public')->delete($book->cover_image);
+        }
+
+        if ($book->digital_file_path) {
+            Storage::disk('public')->delete($book->digital_file_path);
         }
 
         $book->delete();
