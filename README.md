@@ -152,6 +152,7 @@ php artisan serve
 
 ¿Quieres agregar notificaciones, reservas anticipadas, reportes de uso u otros módulos?  
 ¡El código es limpio, modular y fácil de adaptar a tus necesidades!
+Algun requerimiento?? -> A mi correo me podrian escribir :=)
 
 ---
 
