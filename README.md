@@ -151,7 +151,7 @@ php artisan serve
 ## 💡 Personalízala y extiéndela
 
 ¿Quieres agregar notificaciones, reservas anticipadas, reportes de uso u otros módulos?  
-¡El código es limpio, modular y fácil de adaptar a tus necesidades!
+¡El código es limpio, modular y fácil de adaptar a tus necesidades! gogog
 Algun requerimiento?? -> A mi correo me podrian escribir :=)
 
 ---
