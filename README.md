@@ -2,7 +2,7 @@
   <img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="350" alt="Laravel Logo">
 </p>
 
-<h1 align="center">📚 API Biblioteca - Laravel RESTful</h1>
+<h1 align="center">📚 API Biblioteca - Laravel RESTful - UNO MEJOR</h1>
 <p align="center">
   <b>Una API moderna, robusta y elegante para gestionar tu biblioteca digital</b><br>
   <i>¡Controla libros, autores, categorías, préstamos y favoritos, todo desde una API segura y fácil de usar!</i>
